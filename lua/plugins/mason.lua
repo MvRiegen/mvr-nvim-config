@@ -19,8 +19,8 @@ return {
     "williamboman/mason-lspconfig.nvim",
     config = function()
       require("mason-lspconfig").setup({
-	      -- Installation der LSPs für Lua, C und Python
-        ensure_installed = { "lua_ls", "clangd", "pylsp"},
+        -- Installation der LSPs für Lua, C und Python
+        ensure_installed = { "lua_ls", "clangd", "pylsp", "puppet", "ruby_lsp"},
       })
     end
   },
