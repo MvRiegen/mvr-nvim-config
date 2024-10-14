@@ -14,5 +14,5 @@ require('telescope').setup{
   },
   extensions = {
     -- Weitere Addons für Telescope im README finden
-  } 
+  }
 }
