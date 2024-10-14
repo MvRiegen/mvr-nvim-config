@@ -5,8 +5,13 @@ local opts = {
     'vim',
     'vimdoc',
     'query',
+    'puppet',
     'markdown',
     'markdown_inline',
+  },
+  auto_install = true,
+  highlight = {
+    enable = true,
   },
 }
 
