@@ -10,6 +10,9 @@ return {
       "ibhagwan/fzf-lua",              -- optional
       "echasnovski/mini.pick",         -- optional
     },
-    config = true
+    config = true,
+    keys = {
+      { "<leader>tg", "<cmd>Neogit<cr>", desc = "Toggle git" },
+    }
   }
 }
