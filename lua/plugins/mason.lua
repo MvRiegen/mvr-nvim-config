@@ -1,8 +1,26 @@
+local lua_ls_setup = {
+	settings = {
+		Lua = {
+			runtime = {
+				version = "LuaJIT",
+			},
+			diagnostics = {
+				-- Get the language server to recognize the `vim` global
+				globals = { "vim" },
+			},
+			workspace = {
+				-- Make the server aware of Neovim runtime files
+				library = vim.api.nvim_get_runtime_file("", true),
+			},
+		},
+	},
+}
+
 -- Standardkonfiguration mit Icons setzen
 return {
   {
     "williamboman/mason.nvim",
-    event = "BufReadPre",
+     event = "BufReadPre",
     config = function()
       require("mason").setup {
         ui = {
@@ -28,7 +46,7 @@ return {
     "neovim/nvim-lspconfig",
     config = function()
       local lspconfig = require("lspconfig")
-      lspconfig.lua_ls.setup({})
+      lspconfig.lua_ls.setup(lua_ls_setup)
       lspconfig.clangd.setup({})
       -- Keybinds
       vim.keymap.set('n', 'K', vim.lsp.buf.hover, {}) -- Dokumentation hervorufen
