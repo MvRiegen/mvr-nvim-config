@@ -1,9 +1,9 @@
 return {
-    "shaunsingh/nord.nvim",
+    "catppuccin/nvim",
     lazy = false,
-    name = "nord",
+    name = "catppuccin",
     priority = 1000,
     config = function()
-        vim.cmd('colorscheme nord')
+        vim.cmd('colorscheme catppuccin-mocha')
     end
 }
