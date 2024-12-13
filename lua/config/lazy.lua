@@ -15,19 +15,14 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Wir definnieren den Leader-Key (Die Primärtaste für weitere Tastenbelegungen)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-
 
 -- Setup von lazy.nvim
 require("lazy").setup({
   spec = {
-    -- Importiert automatisch die Plugins in der Directory plugins
     { import = "plugins" },
   },
-  -- Weitere Settings, wie die Farbpallete von Lazy
   install = { colorscheme = { "habamax" } },
-  -- automatically check for plugin updates
   checker = { enabled = true },
 })
