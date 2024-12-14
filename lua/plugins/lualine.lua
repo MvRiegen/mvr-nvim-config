@@ -1,11 +1,10 @@
--- Standardkonfiguration aufrufen und catppucin oder dracula hinzuf�gen
 local config = function()
 require('lualine').setup {
   options = {
     icons_enabled = true,
     theme = 'catppuccin',
-    component_separators = { left = '?', right = '?'},
-    section_separators = { left = '?', right = '?'},
+    component_separators = { left = '', right = '' },
+    section_separators = { left = '', right = '' },
     disabled_filetypes = {
       statusline = {},
       winbar = {},
