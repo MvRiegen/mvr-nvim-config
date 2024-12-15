@@ -13,8 +13,5 @@ return {
                 color_icons = true,
             },
         })
-    end,
-    keys = {
-        { "<leader>q", ":bp<bar>sp<bar>bn<bar>bd<CR>", desc = "Toggle Terminal" },
-    },
+    end
 }
