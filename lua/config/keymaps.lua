@@ -1,3 +1,6 @@
+-- Mouse
+vim.opt.mouse = "a"
+
 -- Nvim-Tree
 vim.keymap.set("n","<leader>s",":NvimTreeToggle<CR>", { noremap = true, silent = true })
 vim.keymap.set("n","<leader>d",":NvimTreeFocus<CR>", { noremap = true, silent = true })
