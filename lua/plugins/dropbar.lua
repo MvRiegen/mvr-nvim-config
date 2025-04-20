@@ -1,4 +1,4 @@
-require('lazy').setup({
+return {
   {
     'Bekaboo/dropbar.nvim',
     -- optional, but required for fuzzy finder support
@@ -13,4 +13,4 @@ require('lazy').setup({
       vim.keymap.set('n', '];', dropbar_api.select_next_context, { desc = 'Select next context' })
     end
   }
-})
+}
