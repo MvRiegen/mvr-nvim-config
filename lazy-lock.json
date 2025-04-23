@@ -3,7 +3,7 @@
   "dashboard-nvim": { "branch": "master", "commit": "b0551fae871fc39454a67cca1adcf76fbe2f61f9" },
   "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
   "dropbar.nvim": { "branch": "master", "commit": "cb7c17bb35fe8860d490dfd1d5c45fce40ecba26" },
-  "fzf-lua": { "branch": "main", "commit": "0fcb12538f1d0c32330327e0e10b3cd85dda0e38" },
+  "fzf-lua": { "branch": "main", "commit": "23dce7340eecc74cfd933401e1690b8416d7ff86" },
   "lazy.nvim": { "branch": "main", "commit": "6c3bda4aca61a13a9c63f1c1d1b16b9d3be90d7a" },
   "lualine.nvim": { "branch": "master", "commit": "15884cee63a8c205334ab13ab1c891cd4d27101a" },
   "mason-lspconfig.nvim": { "branch": "main", "commit": "1a31f824b9cd5bc6f342fc29e9a53b60d74af245" },
