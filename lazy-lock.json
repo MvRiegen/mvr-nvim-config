@@ -2,7 +2,7 @@
   "catppuccin": { "branch": "main", "commit": "1bf070129c0b6f77cc23f6a2212dcdc868308c52" },
   "dashboard-nvim": { "branch": "master", "commit": "591b5b29e2f17b97496ec3179f6ecd08bb8502cc" },
   "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
-  "dropbar.nvim": { "branch": "master", "commit": "e2154ba25ebe5aa3c4b1abe4ad0ad7c1190a036a" },
+  "dropbar.nvim": { "branch": "master", "commit": "0b822e1327013a6554b4fe90f7390e5fb01a8e5e" },
   "fzf-lua": { "branch": "main", "commit": "02def6b972d7687866738d6f6a5f4839ce5b5a7a" },
   "lazy.nvim": { "branch": "main", "commit": "6c3bda4aca61a13a9c63f1c1d1b16b9d3be90d7a" },
   "lualine.nvim": { "branch": "master", "commit": "15884cee63a8c205334ab13ab1c891cd4d27101a" },
