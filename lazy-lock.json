@@ -6,7 +6,7 @@
   "fzf-lua": { "branch": "main", "commit": "8c8845ca6d05bc768b7ce27ebe3682ddf7e6a996" },
   "lazy.nvim": { "branch": "main", "commit": "6c3bda4aca61a13a9c63f1c1d1b16b9d3be90d7a" },
   "lualine.nvim": { "branch": "master", "commit": "0c6cca9f2c63dadeb9225c45bc92bb95a151d4af" },
-  "mason-lspconfig.nvim": { "branch": "main", "commit": "67da97f8c2fd12d05427bb485ce07ee6418e0a51" },
+  "mason-lspconfig.nvim": { "branch": "main", "commit": "60eaff7a470b8e78ddff09d847d17a011f560759" },
   "mason.nvim": { "branch": "main", "commit": "8024d64e1330b86044fed4c8494ef3dcd483a67c" },
   "mini.pick": { "branch": "main", "commit": "c272dc61cd0326b344761cd9d031bfcdef1978c7" },
   "neogit": { "branch": "master", "commit": "ca19dbaef043a6a3943ee8f2c0f17c4736e6b7c9" },
