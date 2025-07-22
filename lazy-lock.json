@@ -1,5 +1,5 @@
 {
-  "catppuccin": { "branch": "main", "commit": "fa42eb5e26819ef58884257d5ae95dd0552b9a66" },
+  "catppuccin": { "branch": "main", "commit": "82f3dcedc9acc242d2d4f98abca02e2f10a75248" },
   "dashboard-nvim": { "branch": "master", "commit": "c42fcfbd96dfcaa486c0a0ab52494316f1c31350" },
   "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
   "dropbar.nvim": { "branch": "master", "commit": "5c3b0afdae4eeebb17497062ffad58d98b1c1c79" },
@@ -8,7 +8,7 @@
   "lualine.nvim": { "branch": "master", "commit": "a94fc68960665e54408fe37dcf573193c4ce82c9" },
   "mason-lspconfig.nvim": { "branch": "main", "commit": "bb3a17efc797c34c054463174e5522442576ebd8" },
   "mason.nvim": { "branch": "main", "commit": "8024d64e1330b86044fed4c8494ef3dcd483a67c" },
-  "mini.pick": { "branch": "main", "commit": "ebe3dacb352bb054607e5ed0fd461e2251a7a280" },
+  "mini.pick": { "branch": "main", "commit": "c8f4ff0251ccb8c6a993ee0dee4e06d9c21a4b99" },
   "neogit": { "branch": "master", "commit": "55410182748755baf5c3944c9825cd082644f1c1" },
   "neovim-project": { "branch": "main", "commit": "d694c9760dbc443ea1ee09b36e774d7a1085f557" },
   "neovim-session-manager": { "branch": "master", "commit": "3409dc920d40bec4c901c0a122a80bee03d6d1e1" },
