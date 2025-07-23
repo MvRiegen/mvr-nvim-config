@@ -5,6 +5,7 @@ local opts = {
     'vim',
     'vimdoc',
     'query',
+    'php',
     'puppet',
     'markdown',
     'markdown_inline',
