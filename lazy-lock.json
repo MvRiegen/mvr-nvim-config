@@ -1,5 +1,5 @@
 {
-  "catppuccin": { "branch": "main", "commit": "b313c962cf94416dc4b297ab517f47b0cd8272ad" },
+  "catppuccin": { "branch": "main", "commit": "f67971cd3e30dd94061da8d61ee34742d43c632a" },
   "dashboard-nvim": { "branch": "master", "commit": "c42fcfbd96dfcaa486c0a0ab52494316f1c31350" },
   "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
   "dropbar.nvim": { "branch": "master", "commit": "80751f5e9db69b0cdf2a25d321f1e79745f9b324" },
