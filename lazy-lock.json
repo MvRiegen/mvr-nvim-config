@@ -12,7 +12,7 @@
   "neogit": { "branch": "master", "commit": "49d0527143fe748196ae9a20b8c9ff54cbf45fab" },
   "neovim-project": { "branch": "main", "commit": "d694c9760dbc443ea1ee09b36e774d7a1085f557" },
   "neovim-session-manager": { "branch": "master", "commit": "3409dc920d40bec4c901c0a122a80bee03d6d1e1" },
-  "nvim-lspconfig": { "branch": "master", "commit": "a5303bb6ae96c03efaea096fbdab6b80694cc9ec" },
+  "nvim-lspconfig": { "branch": "master", "commit": "612d9fcc652725ce2e3a8043daad6cfc6865c4a7" },
   "nvim-tree.lua": { "branch": "master", "commit": "f0e9951778802526b14c934f7bf746e1e0ae5ed0" },
   "nvim-treesitter": { "branch": "master", "commit": "42fc28ba918343ebfd5565147a42a26580579482" },
   "nvim-web-devicons": { "branch": "master", "commit": "c2599a81ecabaae07c49ff9b45dcd032a8d90f1a" },
