@@ -37,7 +37,7 @@ return {
     "williamboman/mason-lspconfig.nvim",
     config = function()
       require("mason-lspconfig").setup({
-        -- Installation der LSPs für Lua, C und Python
+        -- Installation der LSPs fÃ¼r Lua, C und Python
         ensure_installed = { "lua_ls", "clangd", "pylsp", "puppet", "ruby_lsp"},
       })
     end
@@ -45,9 +45,14 @@ return {
   {
     "neovim/nvim-lspconfig",
     config = function()
-      local lspconfig = require("lspconfig")
-      lspconfig.lua_ls.setup(lua_ls_setup)
-      lspconfig.clangd.setup({})
+      local config = vim.lsp.config
+      config.lua_ls = vim.tbl_deep_extend("force", config.lua_ls or {}, lua_ls_setup)
+      config.clangd = vim.tbl_deep_extend("force", config.clangd or {}, {})
+
+      -- server starten
+      vim.lsp.enable(config.lua_ls)
+      vim.lsp.enable(config.clangd)
+
       -- Keybinds
       vim.keymap.set('n', 'K', vim.lsp.buf.hover, {}) -- Dokumentation hervorufen
       vim.keymap.set({'n','v'}, '<leader>ka', vim.lsp.buf.code_action, {}) -- Code Action aufrufen
