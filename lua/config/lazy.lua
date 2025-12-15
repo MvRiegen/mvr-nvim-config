@@ -24,5 +24,6 @@ require("lazy").setup({
     { import = "plugins" },
   },
   install = { colorscheme = { "habamax" } },
+  rocks = { enabled = false }, -- disable luarocks integration to silence health error
   checker = { enabled = true, notify = false },
 })
