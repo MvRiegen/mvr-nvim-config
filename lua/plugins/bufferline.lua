@@ -68,10 +68,16 @@ vim.api.nvim_create_user_command("Bq", function(opts)
 end, { bang = true })
 
 vim.api.nvim_create_user_command("Bx", function(opts)
-  if not opts.bang and vim.bo.modified then
-    pcall(vim.cmd, "silent write")
+  local function try_write(force)
+    if not vim.bo.modified then
+      return true
+    end
+    return pcall(vim.cmd, force and "silent write!" or "silent write")
   end
-  smart_bdelete(opts.bang)
+
+  if try_write(opts.bang) then
+    smart_bdelete(opts.bang)
+  end
 end, { bang = true })
 
 vim.cmd([[
