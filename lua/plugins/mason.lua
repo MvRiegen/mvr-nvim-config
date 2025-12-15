@@ -42,6 +42,11 @@ return {
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       local function on_attach(_, bufnr)
+        local ok, navic = pcall(require, "nvim-navic")
+        if ok then
+          navic.attach(_, bufnr)
+        end
+
         local map = function(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
         end

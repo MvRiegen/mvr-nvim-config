@@ -9,6 +9,14 @@ local function diff_source()
   end
 end
 
+local function navic_location()
+  local ok, navic = pcall(require, "nvim-navic")
+  if not ok then
+    return ""
+  end
+  return navic.get_location()
+end
+
 local config = function()
 require('lualine').setup {
   options = {
@@ -36,7 +44,7 @@ require('lualine').setup {
       { 'diff', source = diff_source },
       'diagnostics'
     },
-    lualine_c = {},
+    lualine_c = { navic_location },
     lualine_x = {'encoding', 'fileformat', 'filetype'},
     lualine_y = {'progress'},
     lualine_z = {'location'}
