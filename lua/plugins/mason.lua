@@ -47,6 +47,13 @@ return {
         end
         map('n', 'K', vim.lsp.buf.hover, "LSP hover")
         map({ 'n', 'v' }, '<leader>ka', vim.lsp.buf.code_action, "Code action")
+        map('n', 'gd', vim.lsp.buf.definition, "Goto definition")
+        map('n', 'gD', vim.lsp.buf.declaration, "Goto declaration")
+        map('n', 'gi', vim.lsp.buf.implementation, "Goto implementation")
+        map('n', 'gr', vim.lsp.buf.references, "Goto references")
+        map('n', 'gl', vim.diagnostic.open_float, "Line diagnostics")
+        map('n', '[d', vim.diagnostic.goto_prev, "Prev diagnostic")
+        map('n', ']d', vim.diagnostic.goto_next, "Next diagnostic")
       end
 
       mason_lspconfig.setup({
