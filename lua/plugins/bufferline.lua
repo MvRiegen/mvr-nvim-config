@@ -31,7 +31,9 @@ return {
   opts = {
     options = {
       diagnostics = "nvim_lsp",
-      separator_style = "slant",
+      separator_style = { "", "" },
+      indicator = { style = "underline" },
+      show_buffer_close_icons = false,
       close_command = close_and_focus,
       right_mouse_command = close_and_focus,
       offsets = { { filetype = "NvimTree", text = "File Explorer", separator = true } },
