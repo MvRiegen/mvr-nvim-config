@@ -8,6 +8,10 @@ return {
       diagnostics = "nvim_lsp",
       separator_style = "slant",
       offsets = { { filetype = "NvimTree", text = "File Explorer", separator = true } },
+      custom_filter = function(bufnr)
+        -- hide NvimTree from the bufferline so its tab cannot be closed accidentally
+        return vim.bo[bufnr].filetype ~= "NvimTree"
+      end,
     },
   },
   keys = {
