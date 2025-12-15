@@ -1,3 +1,28 @@
+local function close_and_focus(bufnr)
+  -- do not close NvimTree, just leave
+  if vim.bo[bufnr].filetype == "NvimTree" then
+    return
+  end
+
+  -- switch to alternate listed buffer if available and not tree
+  local prev = vim.fn.bufnr("#")
+  if prev > 0 and vim.fn.buflisted(prev) == 1 and vim.bo[prev].filetype ~= "NvimTree" then
+    vim.cmd("buffer " .. prev)
+  end
+
+  pcall(vim.cmd, "bdelete " .. bufnr)
+
+  -- if we landed in the tree, jump to the first other listed buffer
+  if vim.bo.filetype == "NvimTree" then
+    for _, buf in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+      if vim.api.nvim_buf_is_valid(buf.bufnr) and vim.bo[buf.bufnr].filetype ~= "NvimTree" then
+        vim.cmd("buffer " .. buf.bufnr)
+        break
+      end
+    end
+  end
+end
+
 return {
   "akinsho/bufferline.nvim",
   version = "*",
@@ -7,6 +32,8 @@ return {
     options = {
       diagnostics = "nvim_lsp",
       separator_style = "slant",
+      close_command = close_and_focus,
+      right_mouse_command = close_and_focus,
       offsets = { { filetype = "NvimTree", text = "File Explorer", separator = true } },
       custom_filter = function(bufnr)
         -- hide NvimTree from the bufferline so its tab cannot be closed accidentally
