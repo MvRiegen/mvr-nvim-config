@@ -33,7 +33,7 @@ return {
       diagnostics = "nvim_lsp",
       separator_style = { "", "" },
       indicator = { style = "underline" },
-      show_buffer_close_icons = false,
+      show_buffer_close_icons = true,
       close_command = close_and_focus,
       right_mouse_command = close_and_focus,
       offsets = { { filetype = "NvimTree", text = "File Explorer", separator = true } },
