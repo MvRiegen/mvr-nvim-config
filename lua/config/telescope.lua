@@ -13,6 +13,6 @@ require('telescope').setup{
   pickers = {
   },
   extensions = {
-    -- Weitere Addons für Telescope im README finden
+    -- Weitere Addons fuer Telescope im README finden
   }
 }
