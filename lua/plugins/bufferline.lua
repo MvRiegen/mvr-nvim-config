@@ -41,6 +41,27 @@ return {
         -- hide NvimTree from the bufferline so its tab cannot be closed accidentally
         return vim.bo[bufnr].filetype ~= "NvimTree"
       end,
+      custom_areas = {
+        right = function()
+          local gs = vim.b.gitsigns_status_dict
+          if not gs or gs.head == "" then
+            return {}
+          end
+
+          local items = {
+            { text = " git:" .. gs.head .. " " },
+          }
+          local function add(label, count, prefix)
+            if count and count > 0 then
+              table.insert(items, { text = prefix .. count .. " " })
+            end
+          end
+          add("added", gs.added, "+")
+          add("changed", gs.changed, "~")
+          add("removed", gs.removed, "-")
+          return items
+        end,
+      },
     },
   },
   keys = {
