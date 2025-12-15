@@ -51,14 +51,14 @@ return {
           local items = {
             { text = " git:" .. gs.head .. " " },
           }
-          local function add(label, count, prefix)
+          local function add(count, prefix)
             if count and count > 0 then
               table.insert(items, { text = prefix .. count .. " " })
             end
           end
-          add("added", gs.added, "+")
-          add("changed", gs.changed, "~")
-          add("removed", gs.removed, "-")
+          add(gs.added, "+")
+          add(gs.changed, "~")
+          add(gs.removed, "-")
           return items
         end,
       },
