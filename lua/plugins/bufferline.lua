@@ -1,32 +1,45 @@
-local function close_and_focus(bufnr)
+local function pick_non_tree_target(current)
+  -- Prefer alternate buffer if valid
+  local alt = vim.fn.bufnr("#")
+  if alt > 0 and vim.fn.buflisted(alt) == 1 and vim.bo[alt].filetype ~= "NvimTree" then
+    return alt
+  end
+
+  -- Otherwise pick most recently used listed buffer (non-tree)
+  local candidates = vim.fn.getbufinfo({ buflisted = 1 })
+  table.sort(candidates, function(a, b)
+    return (a.lastused or 0) > (b.lastused or 0)
+  end)
+  for _, buf in ipairs(candidates) do
+    if buf.bufnr ~= current and vim.api.nvim_buf_is_valid(buf.bufnr) and vim.bo[buf.bufnr].filetype ~= "NvimTree" then
+      return buf.bufnr
+    end
+  end
+end
+
+local function close_and_focus(bufnr, force)
   -- do not close NvimTree, just leave
   if vim.bo[bufnr].filetype == "NvimTree" then
     return
   end
 
-  -- switch to alternate listed buffer if available and not tree
-  local prev = vim.fn.bufnr("#")
-  if prev > 0 and vim.fn.buflisted(prev) == 1 and vim.bo[prev].filetype ~= "NvimTree" then
-    vim.cmd("buffer " .. prev)
+  local target = pick_non_tree_target(bufnr)
+
+  if force then
+    pcall(vim.cmd, "bdelete! " .. bufnr)
+  else
+    pcall(vim.cmd, "bdelete " .. bufnr)
   end
 
-  pcall(vim.cmd, "bdelete " .. bufnr)
-
-  -- if we landed in the tree, jump to the first other listed buffer
-  if vim.bo.filetype == "NvimTree" then
-    for _, buf in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
-      if vim.api.nvim_buf_is_valid(buf.bufnr) and vim.bo[buf.bufnr].filetype ~= "NvimTree" then
-        vim.cmd("buffer " .. buf.bufnr)
-        break
-      end
-    end
+  if target and vim.api.nvim_buf_is_valid(target) and vim.bo[target].filetype ~= "NvimTree" then
+    vim.cmd("buffer " .. target)
   end
 end
 
 local function smart_bdelete(force)
   local bufnr = vim.api.nvim_get_current_buf()
   if force then
-    pcall(vim.cmd, "bdelete! " .. bufnr)
+    close_and_focus(bufnr, true)
   else
     close_and_focus(bufnr)
   end
