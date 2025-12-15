@@ -85,7 +85,7 @@ return {
       show_buffer_close_icons = true,
       close_command = close_and_focus,
       right_mouse_command = close_and_focus,
-      offsets = { { filetype = "NvimTree", text = "EXPLORER", separator = true, text_align = "left" } },
+      offsets = { { filetype = "NvimTree", text = " EXPLORER", separator = true, text_align = "left" } },
       custom_filter = function(bufnr)
         -- hide NvimTree from the bufferline so its tab cannot be closed accidentally
         return vim.bo[bufnr].filetype ~= "NvimTree"
