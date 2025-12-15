@@ -36,6 +36,22 @@ local function close_and_focus(bufnr, force)
   end
 end
 
+local function cleanup_empty_buffers()
+  local bufs = vim.fn.getbufinfo({ buflisted = 1 })
+  if #bufs <= 1 then
+    return
+  end
+  for _, buf in ipairs(bufs) do
+    if buf.name == "" and buf.changed == 0 and buf.linecount <= 1 then
+      pcall(vim.api.nvim_buf_delete, buf.bufnr, { force = true })
+    end
+  end
+end
+
+vim.api.nvim_create_autocmd("BufEnter", {
+  callback = cleanup_empty_buffers,
+})
+
 local function smart_bdelete(force)
   local bufnr = vim.api.nvim_get_current_buf()
   if force then
@@ -43,6 +59,7 @@ local function smart_bdelete(force)
   else
     close_and_focus(bufnr)
   end
+  cleanup_empty_buffers()
 end
 
 -- Replace :q / :q! to close buffer but keep layout/tree intact
