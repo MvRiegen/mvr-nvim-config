@@ -23,6 +23,25 @@ local function close_and_focus(bufnr)
   end
 end
 
+local function smart_bdelete(force)
+  local bufnr = vim.api.nvim_get_current_buf()
+  if force then
+    pcall(vim.cmd, "bdelete! " .. bufnr)
+  else
+    close_and_focus(bufnr)
+  end
+end
+
+-- Replace :q / :q! to close buffer but keep layout/tree intact
+vim.api.nvim_create_user_command("Bq", function(opts)
+  smart_bdelete(opts.bang)
+end, { bang = true })
+
+vim.cmd([[
+cnoreabbrev <expr> q  (getcmdtype() == ':' && getcmdline() == 'q')  ? 'Bq' : 'q'
+cnoreabbrev <expr> q! (getcmdtype() == ':' && getcmdline() == 'q!') ? 'Bq!' : 'q!'
+]])
+
 return {
   "akinsho/bufferline.nvim",
   version = "*",
