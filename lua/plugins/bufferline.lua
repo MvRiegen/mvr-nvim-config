@@ -67,6 +67,23 @@ vim.api.nvim_create_user_command("Bq", function(opts)
   smart_bdelete(opts.bang)
 end, { bang = true })
 
+local blocked_filetypes = {
+  NeogitStatus = true,
+  NeogitLogView = true,
+  NeogitCommitMessage = true,
+  fugitive = true,
+  gitcommit = true,
+  DiffviewFiles = true,
+  DiffviewFileHistory = true,
+  toggleterm = true,
+  Outline = true,
+}
+
+function _G.__bq_allowed()
+  local ft = vim.bo.filetype
+  return not blocked_filetypes[ft]
+end
+
 vim.api.nvim_create_user_command("Bx", function(opts)
   local function try_write(force)
     if not vim.bo.modified then
@@ -81,10 +98,10 @@ vim.api.nvim_create_user_command("Bx", function(opts)
 end, { bang = true })
 
 vim.cmd([[
-cnoreabbrev <expr> q  (getcmdtype() == ':' && getcmdline() == 'q')  ? 'Bq' : 'q'
-cnoreabbrev <expr> q! (getcmdtype() == ':' && getcmdline() == 'q!') ? 'Bq!' : 'q!'
-cnoreabbrev <expr> x  (getcmdtype() == ':' && getcmdline() == 'x')  ? 'Bx' : 'x'
-cnoreabbrev <expr> x! (getcmdtype() == ':' && getcmdline() == 'x!') ? 'Bx!' : 'x!'
+cnoreabbrev <expr> q  (getcmdtype() == ':' && getcmdline() == 'q'  && v:lua.__bq_allowed())  ? 'Bq'  : 'q'
+cnoreabbrev <expr> q! (getcmdtype() == ':' && getcmdline() == 'q!' && v:lua.__bq_allowed()) ? 'Bq!' : 'q!'
+cnoreabbrev <expr> x  (getcmdtype() == ':' && getcmdline() == 'x'  && v:lua.__bq_allowed())  ? 'Bx'  : 'x'
+cnoreabbrev <expr> x! (getcmdtype() == ':' && getcmdline() == 'x!' && v:lua.__bq_allowed()) ? 'Bx!' : 'x!'
 ]])
 
 return {
