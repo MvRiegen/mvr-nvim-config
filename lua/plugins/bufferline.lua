@@ -67,9 +67,18 @@ vim.api.nvim_create_user_command("Bq", function(opts)
   smart_bdelete(opts.bang)
 end, { bang = true })
 
+vim.api.nvim_create_user_command("Bx", function(opts)
+  if not opts.bang and vim.bo.modified then
+    pcall(vim.cmd, "silent write")
+  end
+  smart_bdelete(opts.bang)
+end, { bang = true })
+
 vim.cmd([[
 cnoreabbrev <expr> q  (getcmdtype() == ':' && getcmdline() == 'q')  ? 'Bq' : 'q'
 cnoreabbrev <expr> q! (getcmdtype() == ':' && getcmdline() == 'q!') ? 'Bq!' : 'q!'
+cnoreabbrev <expr> x  (getcmdtype() == ':' && getcmdline() == 'x')  ? 'Bx' : 'x'
+cnoreabbrev <expr> x! (getcmdtype() == ':' && getcmdline() == 'x!') ? 'Bx!' : 'x!'
 ]])
 
 return {
