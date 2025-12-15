@@ -77,6 +77,7 @@ local blocked_filetypes = {
   DiffviewFileHistory = true,
   toggleterm = true,
   Outline = true,
+  NvimTree = true,
 }
 
 function _G.__bq_allowed()
