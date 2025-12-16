@@ -82,7 +82,25 @@ local blocked_filetypes = {
 
 function _G.__bq_allowed()
   local ft = vim.bo.filetype
-  return not blocked_filetypes[ft]
+  if blocked_filetypes[ft] then
+    return false
+  end
+
+  local function tree_present()
+    for _, buf in ipairs(vim.fn.getbufinfo({ buflisted = 0 })) do
+      if vim.api.nvim_buf_is_valid(buf.bufnr) and vim.bo[buf.bufnr].filetype == "NvimTree" then
+        return true
+      end
+    end
+    return false
+  end
+
+  local listed = vim.fn.getbufinfo({ buflisted = 1 })
+  if #listed == 1 and not tree_present() then
+    return false
+  end
+
+  return true
 end
 
 vim.api.nvim_create_user_command("Bx", function(opts)
