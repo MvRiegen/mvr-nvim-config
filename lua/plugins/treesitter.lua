@@ -9,6 +9,10 @@ local opts = {
     'puppet',
     'markdown',
     'markdown_inline',
+    'json',
+    'yaml',
+    'javascript',
+    'typescript',
   },
   auto_install = true,
   highlight = {
