@@ -17,6 +17,9 @@ return {
     if lint.linters.xmllint then
       linters.xml = { "xmllint" }
     end
+    if lint.linters.htmlhint then
+      linters.html = { "htmlhint" }
+    end
     lint.linters_by_ft = linters
 
     local function try_lint()

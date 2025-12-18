@@ -17,6 +17,7 @@ return {
       "yamllint",
       "jsonlint",
       "eslint_d",
+      "htmlhint",
     }
 
     -- Skip npm-based tools if npm isn't available
@@ -27,10 +28,22 @@ return {
         jsonlint = true,
         eslint_d = true,
         xmlformatter = true,
+        htmlhint = true,
       }
       local filtered = {}
       for _, tool in ipairs(ensure) do
         if not npm_tools[tool] then
+          table.insert(filtered, tool)
+        end
+      end
+      ensure = filtered
+    end
+
+    local ok_registry, registry = pcall(require, "mason-registry")
+    if ok_registry then
+      local filtered = {}
+      for _, tool in ipairs(ensure) do
+        if registry.has_package(tool) then
           table.insert(filtered, tool)
         end
       end

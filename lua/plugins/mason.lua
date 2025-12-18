@@ -65,19 +65,21 @@ return {
         map('n', ']d', vim.diagnostic.goto_next, "Next diagnostic")
       end
 
+      local servers = {
+        "lua_ls",
+        "clangd",
+        "pylsp",
+        "puppet",
+        "ruby_lsp",
+        "lemminx",
+      }
+      if vim.fn.executable("npm") == 1 then
+        vim.list_extend(servers, { "jsonls", "yamlls", "tsserver", "html" })
+      end
+
       mason_lspconfig.setup({
         -- Installation der LSPs für Lua, C und Python
-        ensure_installed = {
-          "lua_ls",
-          "clangd",
-          "pylsp",
-          "puppet",
-          "ruby_lsp",
-          "jsonls",
-          "yamlls",
-          "tsserver",
-          "lemminx",
-        },
+        ensure_installed = servers,
         handlers = {
           function(server)
             local opts = {

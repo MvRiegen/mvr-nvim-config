@@ -23,6 +23,7 @@ return {
       yaml = { "prettier" },
       typescript = { "prettier" },
       xml = { "prettier" },
+      html = { "prettier" },
       ["*"] = { "trim_whitespace" },
     },
   },

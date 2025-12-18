@@ -14,6 +14,7 @@ local opts = {
     'javascript',
     'typescript',
     'xml',
+    'html',
   },
   auto_install = true,
   highlight = {
