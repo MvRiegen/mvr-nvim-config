@@ -50,6 +50,16 @@ local function tooling_status()
   return table.concat(parts, " ")
 end
 
+local function line_ending()
+  local ff = vim.bo.fileformat
+  if ff == "dos" then
+    return "CRLF"
+  elseif ff == "mac" then
+    return "CR"
+  end
+  return "LF"
+end
+
 local config = function()
 require('lualine').setup {
   options = {
@@ -78,7 +88,7 @@ require('lualine').setup {
       'diagnostics'
     },
     lualine_c = { navic_location },
-    lualine_x = {tooling_status, 'encoding', 'fileformat', 'filetype'},
+    lualine_x = {tooling_status, 'encoding', line_ending, 'filetype'},
     lualine_y = {'progress'},
     lualine_z = {'location'}
   },
