@@ -18,7 +18,9 @@ vim.opt.updatetime = 300
 vim.opt.timeoutlen = 500
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
--- vim.opt.clipboard = "unnamedplus"
+if vim.fn.executable("wl-copy") == 1 or vim.fn.executable("xclip") == 1 or vim.fn.executable("xsel") == 1 then
+  vim.opt.clipboard = "unnamedplus"
+end
 
 -- Highlight yank for feedback
 vim.api.nvim_create_autocmd("TextYankPost", {
