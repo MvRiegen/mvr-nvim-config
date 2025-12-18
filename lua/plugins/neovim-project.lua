@@ -22,6 +22,6 @@ return {
     { "ibhagwan/fzf-lua" },
     { "Shatur/neovim-session-manager" },
   },
-    event = "VeryLazy",
-    priority = 100,
+  lazy = false,
+  priority = 100,
 }
