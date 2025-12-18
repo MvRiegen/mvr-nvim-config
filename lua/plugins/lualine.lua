@@ -17,6 +17,39 @@ local function navic_location()
   return navic.get_location()
 end
 
+local function tooling_status()
+  local ft = vim.bo.filetype
+  if ft == "" then
+    return ""
+  end
+
+  local parts = {}
+
+  local ok_conform, conform = pcall(require, "conform")
+  if ok_conform and conform.list_formatters then
+    local fmts = {}
+    for _, fmt in ipairs(conform.list_formatters(0)) do
+      local name = fmt.name
+      if name and fmt.available ~= false and name ~= "trim_whitespace" then
+        table.insert(fmts, name)
+      end
+    end
+    if #fmts > 0 then
+      table.insert(parts, "fmt:" .. table.concat(fmts, ","))
+    end
+  end
+
+  local ok_lint, lint = pcall(require, "lint")
+  if ok_lint then
+    local linters = lint.linters_by_ft[ft] or {}
+    if #linters > 0 then
+      table.insert(parts, "lint:" .. table.concat(linters, ","))
+    end
+  end
+
+  return table.concat(parts, " ")
+end
+
 local config = function()
 require('lualine').setup {
   options = {
@@ -45,7 +78,7 @@ require('lualine').setup {
       'diagnostics'
     },
     lualine_c = { navic_location },
-    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_x = {tooling_status, 'encoding', 'fileformat', 'filetype'},
     lualine_y = {'progress'},
     lualine_z = {'location'}
   },
