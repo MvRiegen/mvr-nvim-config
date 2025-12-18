@@ -74,7 +74,7 @@ return {
         "lemminx",
       }
       if vim.fn.executable("npm") == 1 then
-        vim.list_extend(servers, { "jsonls", "yamlls", "tsserver", "html" })
+        vim.list_extend(servers, { "jsonls", "yamlls", "ts_ls", "html" })
       end
 
       mason_lspconfig.setup({
