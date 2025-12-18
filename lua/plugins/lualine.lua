@@ -23,6 +23,11 @@ local function tooling_status()
     return ""
   end
 
+  local icons = {
+    format = "󰉼",
+    lint = "󰁨",
+  }
+
   local parts = {}
 
   local ok_conform, conform = pcall(require, "conform")
@@ -35,7 +40,7 @@ local function tooling_status()
       end
     end
     if #fmts > 0 then
-      table.insert(parts, "fmt:" .. table.concat(fmts, ","))
+      table.insert(parts, icons.format .. " " .. table.concat(fmts, ","))
     end
   end
 
@@ -43,7 +48,7 @@ local function tooling_status()
   if ok_lint then
     local linters = lint.linters_by_ft[ft] or {}
     if #linters > 0 then
-      table.insert(parts, "lint:" .. table.concat(linters, ","))
+      table.insert(parts, icons.lint .. " " .. table.concat(linters, ","))
     end
   end
 
@@ -51,13 +56,18 @@ local function tooling_status()
 end
 
 local function line_ending()
+  local icons = {
+    lf = "",
+    crlf = "",
+    cr = "",
+  }
   local ff = vim.bo.fileformat
   if ff == "dos" then
-    return "CRLF"
+    return icons.crlf .. " CRLF"
   elseif ff == "mac" then
-    return "CR"
+    return icons.cr .. " CR"
   end
-  return "LF"
+  return icons.lf .. " LF"
 end
 
 local config = function()
