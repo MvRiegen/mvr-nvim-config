@@ -12,6 +12,15 @@ return {
       end
       return { timeout_ms = 2000, lsp_fallback = true }
     end,
+    formatters = {
+      stylua = { condition = function() return vim.fn.executable("stylua") == 1 end },
+      ruff_format = { condition = function() return vim.fn.executable("ruff") == 1 end },
+      ruff_organize_imports = { condition = function() return vim.fn.executable("ruff") == 1 end },
+      phpcbf = { condition = function() return vim.fn.executable("phpcbf") == 1 end },
+      rubocop = { condition = function() return vim.fn.executable("rubocop") == 1 end },
+      prettier = { condition = function() return vim.fn.executable("prettier") == 1 end },
+      ["puppet-lint"] = { condition = function() return vim.fn.executable("puppet-lint") == 1 end },
+    },
     formatters_by_ft = {
       lua = { "stylua" },
       python = { "ruff_format", "ruff_organize_imports" },
