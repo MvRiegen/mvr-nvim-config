@@ -1,5 +1,7 @@
 local function has_words_before()
-  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local line = cursor[1]
+  local col = cursor[2]
   if col == 0 then
     return false
   end
