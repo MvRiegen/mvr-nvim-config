@@ -18,7 +18,7 @@ vim.opt.updatetime = 300
 vim.opt.timeoutlen = 500
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
--- vim.opt.clipboard = "unnamedplus" -- enable if you want system clipboard
+vim.opt.clipboard = "unnamedplus"
 
 -- Highlight yank for feedback
 vim.api.nvim_create_autocmd("TextYankPost", {
