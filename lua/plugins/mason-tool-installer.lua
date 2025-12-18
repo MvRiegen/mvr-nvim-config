@@ -1,6 +1,7 @@
 return {
   "WhoIsSethDaniel/mason-tool-installer.nvim",
   dependencies = { "williamboman/mason.nvim" },
+  event = "VeryLazy",
   config = function()
     local ensure = {
       -- formatters
@@ -53,7 +54,7 @@ return {
     require("mason-tool-installer").setup({
       ensure_installed = ensure,
       run_on_start = true,
-      start_delay = 3000,
+      start_delay = 6000,
     })
   end,
 }
