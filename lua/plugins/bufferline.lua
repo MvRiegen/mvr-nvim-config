@@ -78,6 +78,7 @@ local blocked_filetypes = {
   toggleterm = true,
   Outline = true,
   NvimTree = true,
+  lazy = true,
 }
 
 function _G.__bq_allowed()
