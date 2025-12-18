@@ -19,6 +19,10 @@ return {
       ruby = { "rubocop" },
       puppet = { "puppet-lint" }, -- lint-like; only runs if available
       markdown = { "prettier" },
+      json = { "prettier" },
+      yaml = { "prettier" },
+      typescript = { "prettier" },
+      xml = { "prettier" },
       ["*"] = { "trim_whitespace" },
     },
   },

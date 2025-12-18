@@ -13,6 +13,7 @@ local opts = {
     'yaml',
     'javascript',
     'typescript',
+    'xml',
   },
   auto_install = true,
   highlight = {

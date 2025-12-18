@@ -67,7 +67,17 @@ return {
 
       mason_lspconfig.setup({
         -- Installation der LSPs für Lua, C und Python
-        ensure_installed = { "lua_ls", "clangd", "pylsp", "puppet", "ruby_lsp"},
+        ensure_installed = {
+          "lua_ls",
+          "clangd",
+          "pylsp",
+          "puppet",
+          "ruby_lsp",
+          "jsonls",
+          "yamlls",
+          "tsserver",
+          "lemminx",
+        },
         handlers = {
           function(server)
             local opts = {

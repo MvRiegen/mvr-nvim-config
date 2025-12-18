@@ -3,14 +3,21 @@ return {
   event = { "BufReadPost", "BufNewFile" },
   config = function()
     local lint = require("lint")
-    lint.linters_by_ft = {
+    local linters = {
       lua = { "luacheck" },
       python = { "ruff" },
       php = { "phpcs" },
       markdown = { "markdownlint" },
       puppet = { "puppet-lint" },
       ruby = { "rubocop" },
+      yaml = { "yamllint" },
+      json = { "jsonlint" },
+      typescript = { "eslint_d" },
     }
+    if lint.linters.xmllint then
+      linters.xml = { "xmllint" }
+    end
+    lint.linters_by_ft = linters
 
     local function try_lint()
       lint.try_lint()

@@ -9,17 +9,28 @@ return {
       "phpcbf",
       "rubocop",
       "prettier",
+      "xmlformatter",
       -- linters
       "luacheck",
       "phpcs",
       "markdownlint",
+      "yamllint",
+      "jsonlint",
+      "eslint_d",
     }
 
     -- Skip npm-based tools if npm isn't available
     if vim.fn.executable("npm") == 0 then
+      local npm_tools = {
+        prettier = true,
+        markdownlint = true,
+        jsonlint = true,
+        eslint_d = true,
+        xmlformatter = true,
+      }
       local filtered = {}
       for _, tool in ipairs(ensure) do
-        if tool ~= "prettier" and tool ~= "markdownlint" then
+        if not npm_tools[tool] then
           table.insert(filtered, tool)
         end
       end
