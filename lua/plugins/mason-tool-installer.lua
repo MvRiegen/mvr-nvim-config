@@ -54,7 +54,7 @@ return {
     require("mason-tool-installer").setup({
       ensure_installed = ensure,
       run_on_start = true,
-      delay_start = 3000,
+      start_delay = 2000,
     })
   end,
 }
