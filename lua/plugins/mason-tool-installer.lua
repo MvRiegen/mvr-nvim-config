@@ -68,6 +68,14 @@ return {
         return
       end
 
+      local refreshed = false
+      registry.refresh(function()
+        refreshed = true
+      end)
+      vim.wait(60000, function()
+        return refreshed
+      end, 100)
+
       local pending = 0
       local to_install = {}
       local done = false
@@ -110,7 +118,6 @@ return {
         return
       end
 
-      vim.cmd("MasonUpdate")
       vim.cmd("MasonInstall --sync " .. table.concat(to_install, " "))
     end, {})
 
