@@ -62,8 +62,54 @@ return {
       if #tools == 0 then
         return
       end
+
+      local ok_registry, registry = pcall(require, "mason-registry")
+      if not ok_registry then
+        return
+      end
+
+      local pending = 0
+      local to_install = {}
+      local done = false
+
+      local function finalize()
+        done = true
+      end
+
+      for _, name in ipairs(tools) do
+        local ok_pkg, pkg = pcall(registry.get_package, name)
+        if ok_pkg then
+          if not pkg:is_installed() then
+            table.insert(to_install, name)
+          else
+            pending = pending + 1
+            pkg:check_new_version(function(success)
+              if success then
+                table.insert(to_install, name)
+              end
+              pending = pending - 1
+              if pending == 0 then
+                finalize()
+              end
+            end)
+          end
+        end
+      end
+
+      if pending == 0 then
+        finalize()
+      else
+        vim.wait(60000, function()
+          return done
+        end, 100)
+      end
+
+      if #to_install == 0 then
+        return
+      end
+
       vim.cmd("MasonUpdate")
-      vim.cmd("MasonInstall --sync " .. table.concat(tools, " "))
+      vim.cmd("MasonInstall --sync " .. table.concat(to_install, " "))
     end, {})
 
     require("mason-tool-installer").setup({
