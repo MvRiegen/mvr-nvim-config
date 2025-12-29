@@ -82,16 +82,18 @@ return {
           if not pkg:is_installed() then
             table.insert(to_install, name)
           else
-            pending = pending + 1
-            pkg:check_new_version(function(success)
-              if success then
-                table.insert(to_install, name)
-              end
-              pending = pending - 1
-              if pending == 0 then
-                finalize()
-              end
-            end)
+            if type(pkg.check_new_version) == "function" then
+              pending = pending + 1
+              pkg:check_new_version(function(success)
+                if success then
+                  table.insert(to_install, name)
+                end
+                pending = pending - 1
+                if pending == 0 then
+                  finalize()
+                end
+              end)
+            end
           end
         end
       end
