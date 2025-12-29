@@ -23,6 +23,7 @@ return {
     event = "BufReadPre",
     config = function()
       require("mason").setup {
+        max_concurrent_installers = 1,
         ui = {
           icons = {
             package_installed = "*",
