@@ -20,7 +20,7 @@ local lua_ls_setup = {
 return {
   {
     "williamboman/mason.nvim",
-    event = "BufReadPre",
+    event = "VimEnter",
     config = function()
       require("mason").setup {
         max_concurrent_installers = 1,
@@ -37,7 +37,7 @@ return {
   {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "neovim/nvim-lspconfig" },
-    event = "BufReadPre",
+    event = "VimEnter",
     config = function()
       local lsp = vim.lsp
       local mason_lspconfig = require("mason-lspconfig")
