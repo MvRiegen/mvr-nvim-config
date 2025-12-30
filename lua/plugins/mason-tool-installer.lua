@@ -10,6 +10,21 @@ return {
       vim.fn.writefile({ os.date("%F %T") .. " " .. msg }, path, "a")
     end
 
+    local function refresh_registry()
+      local ok_registry, registry = pcall(require, "mason-registry")
+      if not ok_registry then
+        return false
+      end
+      local refreshed = false
+      registry.refresh(function()
+        refreshed = true
+      end)
+      vim.wait(60000, function()
+        return refreshed
+      end, 100)
+      return refreshed
+    end
+
     local function filtered_tools(skip_registry)
       local tools = vim.deepcopy(tooling.mason_tools)
 
@@ -112,8 +127,10 @@ return {
       log_line("MasonToolsInstallSync installed=" .. table.concat(to_install, ", "))
     end, {})
 
+    refresh_registry()
+
     require("mason-tool-installer").setup({
-      ensure_installed = filtered_tools(true),
+      ensure_installed = filtered_tools(false),
       run_on_start = true,
       start_delay = 2000,
     })
