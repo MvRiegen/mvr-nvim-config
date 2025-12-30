@@ -76,6 +76,7 @@ return {
         end
         map('n', 'K', vim.lsp.buf.hover, "LSP hover")
         map({ 'n', 'v' }, '<leader>ka', vim.lsp.buf.code_action, "Code action")
+        map('n', '<leader>kr', vim.lsp.buf.rename, "Rename symbol")
         map('n', 'gd', vim.lsp.buf.definition, "Goto definition")
         map('n', 'gD', vim.lsp.buf.declaration, "Goto declaration")
         map('n', 'gi', vim.lsp.buf.implementation, "Goto implementation")
