@@ -22,6 +22,6 @@ return {
     { "ibhagwan/fzf-lua" },
     { "Shatur/neovim-session-manager" },
   },
-  lazy = false,
+  event = "VimEnter",
   priority = 100,
 }

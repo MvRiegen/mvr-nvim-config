@@ -1,41 +1,18 @@
+local tooling = require("config.tooling")
+
 return {
   "WhoIsSethDaniel/mason-tool-installer.nvim",
   dependencies = { "williamboman/mason.nvim" },
   lazy = false,
   config = function()
-    local ensure = {
-      -- formatters
-      "stylua",
-      "ruff",
-      "phpcbf",
-      "rubocop",
-      "prettier",
-      -- linters
-      "luacheck",
-      "phpcs",
-      "markdownlint",
-      "yamllint",
-      "jsonlint",
-      "eslint_d",
-      "htmlhint",
-    }
-
     local function filtered_tools()
-      local tools = vim.deepcopy(ensure)
+      local tools = vim.deepcopy(tooling.mason_tools)
 
       -- Skip npm-based tools if npm isn't available
       if vim.fn.executable("npm") == 0 then
-        local npm_tools = {
-          prettier = true,
-          markdownlint = true,
-          jsonlint = true,
-          eslint_d = true,
-          xmlformatter = true,
-          htmlhint = true,
-        }
         local filtered = {}
         for _, tool in ipairs(tools) do
-          if not npm_tools[tool] then
+          if not tooling.npm_tools[tool] then
             table.insert(filtered, tool)
           end
         end

@@ -65,10 +65,10 @@ return {
       if ok_cmp then
         capabilities = cmp_lsp.default_capabilities(capabilities)
       end
-      local function on_attach(_, bufnr)
+      local function on_attach(client, bufnr)
         local ok, navic = pcall(require, "nvim-navic")
         if ok then
-          navic.attach(_, bufnr)
+          navic.attach(client, bufnr)
         end
 
         local map = function(mode, lhs, rhs, desc)
@@ -83,11 +83,27 @@ return {
         map('n', 'gl', vim.diagnostic.open_float, "Line diagnostics")
         map('n', '[d', vim.diagnostic.goto_prev, "Prev diagnostic")
         map('n', ']d', vim.diagnostic.goto_next, "Next diagnostic")
+
+        if vim.lsp.inlay_hint and client.supports_method("textDocument/inlayHint") then
+          pcall(vim.lsp.inlay_hint.enable, true, { bufnr = bufnr })
+        end
+
+        if vim.lsp.codelens and client.supports_method("textDocument/codeLens") then
+          local group = vim.api.nvim_create_augroup("LspCodeLens", { clear = false })
+          vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+            group = group,
+            buffer = bufnr,
+            callback = function()
+              pcall(vim.lsp.codelens.refresh)
+            end,
+          })
+          pcall(vim.lsp.codelens.refresh)
+        end
       end
 
       local servers = {
         "lua_ls",
-        "pylsp",
+        "pyright",
         "puppet",
         "ruby_lsp",
       }

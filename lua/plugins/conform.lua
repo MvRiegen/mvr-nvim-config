@@ -1,3 +1,14 @@
+local tooling = require("config.tooling")
+
+local formatters = {}
+for name, cmd in pairs(tooling.formatter_exec) do
+  formatters[name] = {
+    condition = function()
+      return tooling.is_executable(cmd)
+    end,
+  }
+end
+
 return {
   "stevearc/conform.nvim",
   event = { "BufWritePre" },
@@ -12,28 +23,7 @@ return {
       end
       return { timeout_ms = 2000, lsp_fallback = true }
     end,
-    formatters = {
-      stylua = { condition = function() return vim.fn.executable("stylua") == 1 end },
-      ruff_format = { condition = function() return vim.fn.executable("ruff") == 1 end },
-      ruff_organize_imports = { condition = function() return vim.fn.executable("ruff") == 1 end },
-      phpcbf = { condition = function() return vim.fn.executable("phpcbf") == 1 end },
-      rubocop = { condition = function() return vim.fn.executable("rubocop") == 1 end },
-      prettier = { condition = function() return vim.fn.executable("prettier") == 1 end },
-      ["puppet-lint"] = { condition = function() return vim.fn.executable("puppet-lint") == 1 end },
-    },
-    formatters_by_ft = {
-      lua = { "stylua" },
-      python = { "ruff_format", "ruff_organize_imports" },
-      php = { "phpcbf" },
-      ruby = { "rubocop" },
-      puppet = { "puppet-lint" }, -- lint-like; only runs if available
-      markdown = { "prettier" },
-      json = { "prettier" },
-      yaml = { "prettier" },
-      typescript = { "prettier" },
-      xml = { "prettier" },
-      html = { "prettier" },
-      ["*"] = { "trim_whitespace" },
-    },
+    formatters = formatters,
+    formatters_by_ft = tooling.formatters_by_ft,
   },
 }
