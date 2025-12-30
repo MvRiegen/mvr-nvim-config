@@ -39,7 +39,7 @@ return {
     dependencies = { "neovim/nvim-lspconfig" },
     event = "BufReadPre",
     config = function()
-      local lspconfig = require("lspconfig")
+      local lsp = vim.lsp
       local mason_lspconfig = require("mason-lspconfig")
       local uname = (vim.uv or vim.loop).os_uname()
       local is_aarch64 = uname and uname.machine == "aarch64"
@@ -123,24 +123,27 @@ return {
               end
             end
 
-            lspconfig[server].setup(opts)
+            lsp.config(server, opts)
+            lsp.enable(server)
           end,
         },
       })
 
       if is_aarch64 and lemminx_available then
-        lspconfig.lemminx.setup({
+        lsp.config("lemminx", {
           cmd = { "java", "-jar", lemminx_jar },
           capabilities = capabilities,
           on_attach = on_attach,
         })
+        lsp.enable("lemminx")
       end
       if is_aarch64 and clangd_available then
-        lspconfig.clangd.setup({
+        lsp.config("clangd", {
           cmd = { clangd_cmd },
           capabilities = capabilities,
           on_attach = on_attach,
         })
+        lsp.enable("clangd")
       end
     end
   },
