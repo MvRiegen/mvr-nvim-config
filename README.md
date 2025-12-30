@@ -21,7 +21,7 @@ Personal Neovim configuration with a clean, practical LSP/format/lint setup.
 ## Install
 
 ```sh
-git clone https://github.com/<your-user>/mvr-nvim-config ~/.config/nvim
+git clone https://github.com/MvRiegen/mvr-nvim-config ~/.config/nvim
 ```
 
 Inside Neovim:
