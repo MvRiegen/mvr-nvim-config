@@ -9,6 +9,7 @@ M.formatter_exec = {
   prettier = "prettier",
   ["puppet-lint"] = "puppet-lint",
   xmllint = "xmllint",
+  shfmt = "shfmt",
 }
 
 M.formatters_by_ft = {
@@ -24,6 +25,9 @@ M.formatters_by_ft = {
   xml = { "xmllint" },
   html = { "prettier" },
   ["*"] = { "trim_whitespace" },
+  sh = { "shfmt" },
+  bash = { "shfmt" },
+  zsh = { "shfmt" },
 }
 
 M.linters_by_ft = {
@@ -38,6 +42,9 @@ M.linters_by_ft = {
   typescript = { "eslint_d" },
   html = { "htmlhint" },
   xml = { "xmllint" },
+  sh = { "shellcheck" },
+  bash = { "shellcheck" },
+  zsh = { "shellcheck" },
 }
 
 M.mason_tools = {
@@ -54,6 +61,8 @@ M.mason_tools = {
   "eslint_d",
   "htmlhint",
   "puppet-lint",
+  "shfmt",
+  "shellcheck",
 }
 
 M.npm_tools = {
