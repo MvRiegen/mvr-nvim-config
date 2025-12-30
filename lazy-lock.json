@@ -21,6 +21,7 @@
   "mason-tool-installer.nvim": { "branch": "main", "commit": "517ef5994ef9d6b738322664d5fdd948f0fdeb46" },
   "mason.nvim": { "branch": "main", "commit": "57e5a8addb8c71fb063ee4acda466c7cf6ad2800" },
   "mini.pick": { "branch": "main", "commit": "8cb40ee55dd156957b1116eded6135e6aeaa078b" },
+  "neoconf.nvim": { "branch": "main", "commit": "5b66419d0001d1e437d45ded1bc95b671a3814ab" },
   "neogit": { "branch": "master", "commit": "d8bf9102692250193b855acd9025a826f1af2729" },
   "neovim-project": { "branch": "main", "commit": "cfe4ffe8deb89a72b0a46b8f22183a3b534d9f00" },
   "neovim-session-manager": { "branch": "master", "commit": "3409dc920d40bec4c901c0a122a80bee03d6d1e1" },
