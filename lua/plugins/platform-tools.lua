@@ -9,6 +9,24 @@ local function ensure_dir(path)
   end
 end
 
+local function is_valid_jar(path)
+  local uv = (vim.uv or vim.loop)
+  local stat = uv.fs_stat(path)
+  if not stat or (stat.size or 0) < 1024 then
+    return false
+  end
+  local fd = uv.fs_open(path, "r", 438)
+  if not fd then
+    return false
+  end
+  local data = uv.fs_read(fd, 2, 0)
+  uv.fs_close(fd)
+  if not data or #data < 2 then
+    return false
+  end
+  return data == "PK"
+end
+
 local function download(url, out, sync)
   local tmp = out .. ".part"
   if vim.fn.filereadable(tmp) == 1 then
@@ -46,24 +64,6 @@ local function download(url, out, sync)
     finalize(res.code == 0)
   end)
   return true
-end
-
-local function is_valid_jar(path)
-  local uv = (vim.uv or vim.loop)
-  local stat = uv.fs_stat(path)
-  if not stat or (stat.size or 0) < 1024 then
-    return false
-  end
-  local fd = uv.fs_open(path, "r", 438)
-  if not fd then
-    return false
-  end
-  local data = uv.fs_read(fd, 2, 0)
-  uv.fs_close(fd)
-  if not data or #data < 2 then
-    return false
-  end
-  return data == "PK"
 end
 
 local function install_lemminx(cfg, sync)
