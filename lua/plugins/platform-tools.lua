@@ -91,7 +91,8 @@ local function run_install(sync)
 end
 
 return {
-  "platform-tools",
+  dir = vim.fn.stdpath("config"),
+  name = "platform-tools",
   lazy = true,
   cmd = { "PlatformToolsInstall", "PlatformToolsInstallSync" },
   config = function()
