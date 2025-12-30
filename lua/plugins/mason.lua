@@ -60,6 +60,7 @@ return {
       end
       local clangd_cmd = resolve_clangd_cmd()
       local clangd_available = clangd_cmd ~= nil
+      local java_available = vim.fn.executable("java") == 1
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       local ok_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
@@ -108,8 +109,10 @@ return {
         "pyright",
         "puppet",
         "ruby_lsp",
-        "groovyls",
       }
+      if java_available then
+        table.insert(servers, "groovyls")
+      end
       if not is_aarch64 then
         table.insert(servers, "clangd")
         table.insert(servers, "lemminx")
