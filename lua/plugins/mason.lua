@@ -116,6 +116,85 @@ return {
         vim.list_extend(servers, { "jsonls", "yamlls", "ts_ls", "html", "bashls" })
       end
 
+      local function mason_lsp_packages()
+        local ok_mappings, mappings = pcall(require, "mason-lspconfig.mappings.server")
+        if not ok_mappings then
+          return {}
+        end
+        local out = {}
+        local seen = {}
+        for _, server in ipairs(servers) do
+          local pkg = mappings.lspconfig_to_mason[server]
+          if pkg and not seen[pkg] then
+            seen[pkg] = true
+            table.insert(out, pkg)
+          end
+        end
+        return out
+      end
+
+      vim.api.nvim_create_user_command("MasonLspInstallSync", function()
+        local packages = mason_lsp_packages()
+        if #packages == 0 then
+          return
+        end
+
+        local ok_registry, registry = pcall(require, "mason-registry")
+        if not ok_registry then
+          return
+        end
+
+        local refreshed = false
+        registry.refresh(function()
+          refreshed = true
+        end)
+        vim.wait(60000, function()
+          return refreshed
+        end, 100)
+
+        local pending = 0
+        local to_install = {}
+        local done = false
+
+        local function finalize()
+          done = true
+        end
+
+        for _, name in ipairs(packages) do
+          local ok_pkg, pkg = pcall(registry.get_package, name)
+          if ok_pkg then
+            if not pkg:is_installed() then
+              table.insert(to_install, name)
+            elseif type(pkg.check_new_version) == "function" then
+              pending = pending + 1
+              pkg:check_new_version(function(success)
+                if success then
+                  table.insert(to_install, name)
+                end
+                pending = pending - 1
+                if pending == 0 then
+                  finalize()
+                end
+              end)
+            end
+          end
+        end
+
+        if pending == 0 then
+          finalize()
+        else
+          vim.wait(60000, function()
+            return done
+          end, 100)
+        end
+
+        if #to_install == 0 then
+          return
+        end
+
+        vim.cmd("MasonInstall --sync " .. table.concat(to_install, " "))
+      end, {})
+
       mason_lspconfig.setup({
         -- Installation der LSPs für Lua, C und Python
         ensure_installed = servers,

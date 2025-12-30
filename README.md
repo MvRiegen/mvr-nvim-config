@@ -39,6 +39,7 @@ Inside Neovim:
   "+Lazy! sync" \
   "+MasonUpdate" \
   "+MasonToolsInstallSync" \
+  "+MasonLspInstallSync" \
   "+PlatformToolsInstallSync" \
   "+TSUpdate" \
   "+qa"
