@@ -36,8 +36,9 @@ return {
   },
   {
     "williamboman/mason-lspconfig.nvim",
-    dependencies = { "neovim/nvim-lspconfig" },
+    dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig" },
     event = "VimEnter",
+    cmd = { "MasonLspInstallSync" },
     config = function()
       local lsp = vim.lsp
       local mason_lspconfig = require("mason-lspconfig")
@@ -139,6 +140,8 @@ return {
           return
         end
 
+        vim.notify("Mason LSP packages: " .. table.concat(packages, ", "), vim.log.levels.INFO)
+
         local ok_registry, registry = pcall(require, "mason-registry")
         if not ok_registry then
           return
@@ -189,10 +192,12 @@ return {
         end
 
         if #to_install == 0 then
+          vim.notify("Mason LSP packages already installed", vim.log.levels.INFO)
           return
         end
 
         vim.cmd("MasonInstall --sync " .. table.concat(to_install, " "))
+        vim.notify("Mason LSP installed: " .. table.concat(to_install, ", "), vim.log.levels.INFO)
       end, {})
 
       mason_lspconfig.setup({
