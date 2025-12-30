@@ -117,21 +117,30 @@ return {
         vim.list_extend(servers, { "jsonls", "yamlls", "ts_ls", "html", "bashls" })
       end
 
+      local fallback_map = {
+        lua_ls = "lua-language-server",
+        jsonls = "json-lsp",
+        yamlls = "yaml-language-server",
+        ts_ls = "typescript-language-server",
+        html = "html-lsp",
+        bashls = "bash-language-server",
+        ruby_lsp = "ruby-lsp",
+        puppet = "puppet-language-server",
+      }
+
       local function mason_lsp_packages()
         local ok_mappings, mappings = pcall(require, "mason-lspconfig.mappings.server")
-        if not ok_mappings then
-          return nil, "missing mappings"
-        end
+        local mapping = ok_mappings and mappings.lspconfig_to_mason or fallback_map
         local out = {}
         local seen = {}
         for _, server in ipairs(servers) do
-          local pkg = mappings.lspconfig_to_mason[server]
+          local pkg = mapping[server] or server
           if pkg and not seen[pkg] then
             seen[pkg] = true
             table.insert(out, pkg)
           end
         end
-        return out, nil
+        return out, ok_mappings and nil or tostring(mappings)
       end
 
       local function log_line(msg)
@@ -150,6 +159,9 @@ return {
         if not packages or #packages == 0 then
           log_line("MasonLspInstallSync no packages (" .. (err or "empty list") .. ")")
           return
+        end
+        if err then
+          log_line("MasonLspInstallSync mappings error: " .. err)
         end
         log_line("MasonLspInstallSync packages=" .. table.concat(packages, ", "))
 
