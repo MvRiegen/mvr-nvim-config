@@ -120,7 +120,7 @@ return {
       local function mason_lsp_packages()
         local ok_mappings, mappings = pcall(require, "mason-lspconfig.mappings.server")
         if not ok_mappings then
-          return {}
+          return nil, "missing mappings"
         end
         local out = {}
         local seen = {}
@@ -131,7 +131,7 @@ return {
             table.insert(out, pkg)
           end
         end
-        return out
+        return out, nil
       end
 
       local function log_line(msg)
@@ -139,15 +139,18 @@ return {
         vim.fn.writefile({ os.date("%F %T") .. " " .. msg }, path, "a")
       end
 
-      vim.api.nvim_create_user_command("MasonLspInstallSync", function()
-        local packages = mason_lsp_packages()
-        if #packages == 0 then
-          return
-        end
+      log_line("mason-lspconfig loaded; data_dir=" .. vim.fn.stdpath("data"))
 
-        log_line("MasonLspInstallSync data_dir=" .. vim.fn.stdpath("data"))
+      vim.api.nvim_create_user_command("MasonLspInstallSync", function()
+        log_line("MasonLspInstallSync start")
         log_line("MasonLspInstallSync npm=" .. tostring(vim.fn.executable("npm") == 1))
         log_line("MasonLspInstallSync servers=" .. table.concat(servers, ", "))
+
+        local packages, err = mason_lsp_packages()
+        if not packages or #packages == 0 then
+          log_line("MasonLspInstallSync no packages (" .. (err or "empty list") .. ")")
+          return
+        end
         log_line("MasonLspInstallSync packages=" .. table.concat(packages, ", "))
 
         local ok_registry, registry = pcall(require, "mason-registry")
