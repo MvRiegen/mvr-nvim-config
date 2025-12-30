@@ -1,0 +1,105 @@
+local function is_aarch64()
+  local uname = (vim.uv or vim.loop).os_uname()
+  return uname and uname.machine == "aarch64"
+end
+
+local function ensure_dir(path)
+  if vim.fn.isdirectory(path) == 0 then
+    vim.fn.mkdir(path, "p")
+  end
+end
+
+local function download(url, out, sync)
+  local cmd
+  if vim.fn.executable("curl") == 1 then
+    cmd = { "curl", "-L", "-o", out, url }
+  elseif vim.fn.executable("wget") == 1 then
+    cmd = { "wget", "-O", out, url }
+  else
+    vim.notify("platform-tools: curl/wget not found", vim.log.levels.WARN)
+    return false
+  end
+
+  local job = vim.system(cmd)
+  if sync then
+    local result = job:wait()
+    return result.code == 0
+  end
+  return true
+end
+
+local function install_lemminx(cfg, sync)
+  local jar_path = cfg.lemminx_jar
+  if vim.fn.filereadable(jar_path) == 1 then
+    return
+  end
+  ensure_dir(cfg.lemminx_dir)
+  download(cfg.lemminx_url, jar_path, sync)
+end
+
+local function find_clangd_target(candidates)
+  for _, name in ipairs(candidates) do
+    if vim.fn.executable(name) == 1 then
+      return vim.fn.exepath(name)
+    end
+  end
+end
+
+local function link_clangd(cfg)
+  local link_path = cfg.clangd_link
+  if vim.fn.executable(link_path) == 1 then
+    return
+  end
+
+  local target = find_clangd_target(cfg.clangd_candidates)
+  if not target or target == "" then
+    vim.notify("platform-tools: clangd not found in PATH", vim.log.levels.WARN)
+    return
+  end
+
+  local link_dir = vim.fn.fnamemodify(link_path, ":h")
+  ensure_dir(link_dir)
+
+  local ftype = vim.fn.getftype(link_path)
+  if ftype ~= "" then
+    return
+  end
+
+  local ok, err = (vim.uv or vim.loop).fs_symlink(target, link_path)
+  if not ok then
+    vim.notify("platform-tools: failed to link clangd: " .. tostring(err), vim.log.levels.WARN)
+  end
+end
+
+local function run_install(sync)
+  if not is_aarch64() then
+    return
+  end
+
+  local defaults = {
+    lemminx_dir = vim.fn.expand("~/.local/share/lemminx"),
+    lemminx_jar = vim.fn.expand("~/.local/share/lemminx/lemminx.jar"),
+    lemminx_url = "https://github.com/eclipse/lemminx/releases/latest/download/org.eclipse.lemminx-uber.jar",
+    clangd_link = vim.fn.expand("~/.local/share/clangd/bin/clangd"),
+    clangd_candidates = { "clangd-16", "clangd" },
+  }
+
+  local cfg = vim.tbl_deep_extend("force", defaults, vim.g.platform_tools or {})
+
+  install_lemminx(cfg, sync)
+  link_clangd(cfg)
+end
+
+return {
+  "platform-tools",
+  lazy = true,
+  cmd = { "PlatformToolsInstall", "PlatformToolsInstallSync" },
+  config = function()
+    vim.api.nvim_create_user_command("PlatformToolsInstall", function()
+      run_install(false)
+    end, {})
+    vim.api.nvim_create_user_command("PlatformToolsInstallSync", function()
+      run_install(true)
+    end, {})
+  end,
+}

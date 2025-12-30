@@ -37,9 +37,24 @@ return {
   {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "neovim/nvim-lspconfig" },
+    event = "BufReadPre",
     config = function()
       local lspconfig = require("lspconfig")
       local mason_lspconfig = require("mason-lspconfig")
+      local uname = (vim.uv or vim.loop).os_uname()
+      local is_aarch64 = uname and uname.machine == "aarch64"
+      local lemminx_jar = vim.fn.expand("~/.local/share/lemminx/lemminx.jar")
+      local lemminx_available = vim.fn.filereadable(lemminx_jar) == 1
+      local clangd_link = vim.fn.expand("~/.local/share/clangd/bin/clangd")
+      local clangd_cmd
+      if vim.fn.executable(clangd_link) == 1 then
+        clangd_cmd = clangd_link
+      elseif vim.fn.executable("clangd-16") == 1 then
+        clangd_cmd = vim.fn.exepath("clangd-16")
+      elseif vim.fn.executable("clangd") == 1 then
+        clangd_cmd = vim.fn.exepath("clangd")
+      end
+      local clangd_available = clangd_cmd ~= nil
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       local ok_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
@@ -68,12 +83,14 @@ return {
 
       local servers = {
         "lua_ls",
-        "clangd",
         "pylsp",
         "puppet",
         "ruby_lsp",
-        "lemminx",
       }
+      if not is_aarch64 then
+        table.insert(servers, "clangd")
+        table.insert(servers, "lemminx")
+      end
       if vim.fn.executable("npm") == 1 then
         vim.list_extend(servers, { "jsonls", "yamlls", "ts_ls", "html" })
       end
@@ -91,11 +108,40 @@ return {
             if server == "lua_ls" then
               opts = vim.tbl_deep_extend("force", lua_ls_setup, opts)
             end
+            if server == "clangd" then
+              if clangd_available then
+                opts.cmd = { clangd_cmd }
+              elseif is_aarch64 then
+                return
+              end
+            end
+            if server == "lemminx" then
+              if lemminx_available then
+                opts.cmd = { "java", "-jar", lemminx_jar }
+              elseif is_aarch64 then
+                return
+              end
+            end
 
             lspconfig[server].setup(opts)
           end,
         },
       })
+
+      if is_aarch64 and lemminx_available then
+        lspconfig.lemminx.setup({
+          cmd = { "java", "-jar", lemminx_jar },
+          capabilities = capabilities,
+          on_attach = on_attach,
+        })
+      end
+      if is_aarch64 and clangd_available then
+        lspconfig.clangd.setup({
+          cmd = { clangd_cmd },
+          capabilities = capabilities,
+          on_attach = on_attach,
+        })
+      end
     end
   },
 }
