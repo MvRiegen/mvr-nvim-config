@@ -5,7 +5,7 @@ return {
   dependencies = { "williamboman/mason.nvim" },
   lazy = false,
   config = function()
-    local function filtered_tools()
+    local function filtered_tools(skip_registry)
       local tools = vim.deepcopy(tooling.mason_tools)
 
       -- Skip npm-based tools if npm isn't available
@@ -19,26 +19,23 @@ return {
         tools = filtered
       end
 
-      local ok_registry, registry = pcall(require, "mason-registry")
-      if ok_registry then
-        local filtered = {}
-        for _, tool in ipairs(tools) do
-          if registry.has_package(tool) then
-            table.insert(filtered, tool)
+      if not skip_registry then
+        local ok_registry, registry = pcall(require, "mason-registry")
+        if ok_registry then
+          local filtered = {}
+          for _, tool in ipairs(tools) do
+            if registry.has_package(tool) then
+              table.insert(filtered, tool)
+            end
           end
+          tools = filtered
         end
-        tools = filtered
       end
 
       return tools
     end
 
     vim.api.nvim_create_user_command("MasonToolsInstallSync", function()
-      local tools = filtered_tools()
-      if #tools == 0 then
-        return
-      end
-
       local ok_registry, registry = pcall(require, "mason-registry")
       if not ok_registry then
         return
@@ -51,6 +48,11 @@ return {
       vim.wait(60000, function()
         return refreshed
       end, 100)
+
+      local tools = filtered_tools(false)
+      if #tools == 0 then
+        return
+      end
 
       local pending = 0
       local to_install = {}
