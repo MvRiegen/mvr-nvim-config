@@ -45,6 +45,8 @@ M.linters_by_ft = {
   sh = { "shellcheck" },
   bash = { "shellcheck" },
   zsh = { "shellcheck" },
+  make = { "checkmake" },
+  dockerfile = { "hadolint" },
 }
 
 M.mason_tools = {
@@ -63,6 +65,8 @@ M.mason_tools = {
   "puppet-lint",
   "shfmt",
   "shellcheck",
+  "checkmake",
+  "hadolint",
 }
 
 M.npm_tools = {

@@ -108,13 +108,14 @@ return {
         "pyright",
         "puppet",
         "ruby_lsp",
+        "groovyls",
       }
       if not is_aarch64 then
         table.insert(servers, "clangd")
         table.insert(servers, "lemminx")
       end
       if vim.fn.executable("npm") == 1 then
-        vim.list_extend(servers, { "jsonls", "yamlls", "ts_ls", "html", "bashls" })
+        vim.list_extend(servers, { "jsonls", "yamlls", "ts_ls", "html", "bashls", "dockerls", "docker_compose_language_service" })
       end
 
       local fallback_map = {
@@ -126,6 +127,9 @@ return {
         bashls = "bash-language-server",
         ruby_lsp = "ruby-lsp",
         puppet = "puppet-language-server",
+        dockerls = "dockerfile-language-server",
+        docker_compose_language_service = "docker-compose-language-service",
+        groovyls = "groovy-language-server",
       }
 
       local function mason_lsp_packages()
