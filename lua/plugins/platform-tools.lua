@@ -10,21 +10,41 @@ local function ensure_dir(path)
 end
 
 local function download(url, out, sync)
+  local tmp = out .. ".part"
+  if vim.fn.filereadable(tmp) == 1 then
+    (vim.uv or vim.loop).fs_unlink(tmp)
+  end
+
   local cmd
   if vim.fn.executable("curl") == 1 then
-    cmd = { "curl", "-L", "-o", out, url }
+    cmd = { "curl", "-fL", "--retry", "3", "--retry-delay", "1", "--connect-timeout", "10", "-o", tmp, url }
   elseif vim.fn.executable("wget") == 1 then
-    cmd = { "wget", "-O", out, url }
+    cmd = { "wget", "--tries=3", "--timeout=10", "-O", tmp, url }
   else
     vim.notify("platform-tools: curl/wget not found", vim.log.levels.WARN)
     return false
   end
 
-  local job = vim.system(cmd)
-  if sync then
-    local result = job:wait()
-    return result.code == 0
+  local function finalize(ok)
+    if ok and is_valid_jar(tmp) then
+      local uv = (vim.uv or vim.loop)
+      uv.fs_rename(tmp, out)
+      return true
+    end
+    if vim.fn.filereadable(tmp) == 1 then
+      (vim.uv or vim.loop).fs_unlink(tmp)
+    end
+    return false
   end
+
+  if sync then
+    local result = vim.system(cmd):wait()
+    return finalize(result.code == 0)
+  end
+
+  vim.system(cmd, {}, function(res)
+    finalize(res.code == 0)
+  end)
   return true
 end
 
@@ -51,25 +71,32 @@ local function install_lemminx(cfg, sync)
   if vim.fn.filereadable(jar_path) == 1 and is_valid_jar(jar_path) then
     return
   end
+  if vim.fn.filereadable(jar_path) == 1 then
+    (vim.uv or vim.loop).fs_unlink(jar_path)
+  end
   ensure_dir(cfg.lemminx_dir)
   local urls = cfg.lemminx_urls or cfg.lemminx_url or {}
   if type(urls) == "string" then
     urls = { urls }
   end
 
-  for _, url in ipairs(urls) do
-    if vim.fn.filereadable(jar_path) == 1 then
-      (vim.uv or vim.loop).fs_unlink(jar_path)
-    end
-    download(url, jar_path, sync)
-    if is_valid_jar(jar_path) then
+  local function try_url(index)
+    if index > #urls then
+      vim.notify("platform-tools: failed to download a valid lemminx jar; set vim.g.platform_tools.lemminx_url", vim.log.levels.WARN)
       return
     end
+    local url = urls[index]
+    if sync then
+      if download(url, jar_path, true) then
+        return
+      end
+      return try_url(index + 1)
+    end
+    download(url, jar_path, false)
+    -- For async installs, we don't chain retries; next run will retry if invalid.
   end
-  if vim.fn.filereadable(jar_path) == 1 then
-    (vim.uv or vim.loop).fs_unlink(jar_path)
-  end
-  vim.notify("platform-tools: failed to download a valid lemminx jar; set vim.g.platform_tools.lemminx_url", vim.log.levels.WARN)
+
+  try_url(1)
 end
 
 local function find_clangd_target(candidates)
