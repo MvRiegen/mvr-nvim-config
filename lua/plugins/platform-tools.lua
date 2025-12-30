@@ -51,11 +51,25 @@ local function install_lemminx(cfg, sync)
   if vim.fn.filereadable(jar_path) == 1 and is_valid_jar(jar_path) then
     return
   end
+  ensure_dir(cfg.lemminx_dir)
+  local urls = cfg.lemminx_urls or cfg.lemminx_url or {}
+  if type(urls) == "string" then
+    urls = { urls }
+  end
+
+  for _, url in ipairs(urls) do
+    if vim.fn.filereadable(jar_path) == 1 then
+      (vim.uv or vim.loop).fs_unlink(jar_path)
+    end
+    download(url, jar_path, sync)
+    if is_valid_jar(jar_path) then
+      return
+    end
+  end
   if vim.fn.filereadable(jar_path) == 1 then
     (vim.uv or vim.loop).fs_unlink(jar_path)
   end
-  ensure_dir(cfg.lemminx_dir)
-  download(cfg.lemminx_url, jar_path, sync)
+  vim.notify("platform-tools: failed to download a valid lemminx jar; set vim.g.platform_tools.lemminx_url", vim.log.levels.WARN)
 end
 
 local function find_clangd_target(candidates)
@@ -100,7 +114,10 @@ local function run_install(sync)
   local defaults = {
     lemminx_dir = vim.fn.expand("~/.local/share/lemminx"),
     lemminx_jar = vim.fn.expand("~/.local/share/lemminx/lemminx.jar"),
-    lemminx_url = "https://github.com/eclipse/lemminx/releases/latest/download/org.eclipse.lemminx-uber.jar",
+    lemminx_urls = {
+      "https://github.com/eclipse/lemminx/releases/latest/download/org.eclipse.lemminx-uber.jar",
+      "https://download.eclipse.org/lemminx/releases/latest/org.eclipse.lemminx-uber.jar",
+    },
     clangd_link = vim.fn.expand("~/.local/share/clangd/bin/clangd"),
     clangd_candidates = { "clangd-16", "clangd" },
   }
