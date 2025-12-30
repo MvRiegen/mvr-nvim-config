@@ -142,8 +142,7 @@ local function run_install(sync)
     lemminx_dir = vim.fn.expand("~/.local/share/lemminx"),
     lemminx_jar = vim.fn.expand("~/.local/share/lemminx/lemminx.jar"),
     lemminx_urls = {
-      "https://github.com/eclipse/lemminx/releases/latest/download/org.eclipse.lemminx-uber.jar",
-      "https://download.eclipse.org/lemminx/releases/latest/org.eclipse.lemminx-uber.jar",
+      "https://download.eclipse.org/staging/2025-09/plugins/org.eclipse.lemminx.uber-jar_0.31.0.jar",
     },
     clangd_link = vim.fn.expand("~/.local/share/clangd/bin/clangd"),
     clangd_candidates = { "clangd-16", "clangd" },
