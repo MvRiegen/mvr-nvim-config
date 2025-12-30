@@ -28,10 +28,31 @@ local function download(url, out, sync)
   return true
 end
 
+local function is_valid_jar(path)
+  local uv = (vim.uv or vim.loop)
+  local stat = uv.fs_stat(path)
+  if not stat or (stat.size or 0) < 1024 then
+    return false
+  end
+  local fd = uv.fs_open(path, "r", 438)
+  if not fd then
+    return false
+  end
+  local data = uv.fs_read(fd, 2, 0)
+  uv.fs_close(fd)
+  if not data or #data < 2 then
+    return false
+  end
+  return data == "PK"
+end
+
 local function install_lemminx(cfg, sync)
   local jar_path = cfg.lemminx_jar
-  if vim.fn.filereadable(jar_path) == 1 then
+  if vim.fn.filereadable(jar_path) == 1 and is_valid_jar(jar_path) then
     return
+  end
+  if vim.fn.filereadable(jar_path) == 1 then
+    (vim.uv or vim.loop).fs_unlink(jar_path)
   end
   ensure_dir(cfg.lemminx_dir)
   download(cfg.lemminx_url, jar_path, sync)
@@ -93,7 +114,7 @@ end
 return {
   dir = vim.fn.stdpath("config"),
   name = "platform-tools",
-  lazy = true,
+  event = "VimEnter",
   cmd = { "PlatformToolsInstall", "PlatformToolsInstallSync" },
   config = function()
     vim.api.nvim_create_user_command("PlatformToolsInstall", function()
@@ -102,5 +123,8 @@ return {
     vim.api.nvim_create_user_command("PlatformToolsInstallSync", function()
       run_install(true)
     end, {})
+    vim.defer_fn(function()
+      run_install(false)
+    end, 3000)
   end,
 }
