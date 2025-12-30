@@ -55,6 +55,26 @@ local function tooling_status()
   return table.concat(parts, " ")
 end
 
+local function lsp_versions()
+  local clients = vim.lsp.get_clients({ bufnr = 0 })
+  if not clients or #clients == 0 then
+    return ""
+  end
+
+  local parts = {}
+  for _, client in ipairs(clients) do
+    local name = client.name or "lsp"
+    local version = client.server_info and client.server_info.version
+    if version and version ~= "" then
+      table.insert(parts, name .. " " .. version)
+    else
+      table.insert(parts, name)
+    end
+  end
+
+  return "󰒋 " .. table.concat(parts, ",")
+end
+
 local function line_ending()
   local icons = {
     lf = "",
@@ -98,7 +118,7 @@ require('lualine').setup {
       'diagnostics'
     },
     lualine_c = { navic_location },
-    lualine_x = {tooling_status, 'encoding', line_ending, 'filetype'},
+    lualine_x = {tooling_status, lsp_versions, 'encoding', line_ending, 'filetype'},
     lualine_y = {'progress'},
     lualine_z = {'location'}
   },
