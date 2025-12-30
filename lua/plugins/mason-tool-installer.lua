@@ -5,6 +5,11 @@ return {
   dependencies = { "williamboman/mason.nvim" },
   lazy = false,
   config = function()
+    local function log_line(msg)
+      local path = vim.fn.stdpath("state") .. "/mason-tools-sync.log"
+      vim.fn.writefile({ os.date("%F %T") .. " " .. msg }, path, "a")
+    end
+
     local function filtered_tools(skip_registry)
       local tools = vim.deepcopy(tooling.mason_tools)
 
@@ -36,8 +41,11 @@ return {
     end
 
     vim.api.nvim_create_user_command("MasonToolsInstallSync", function()
+      log_line("MasonToolsInstallSync start data_dir=" .. vim.fn.stdpath("data"))
+      log_line("MasonToolsInstallSync npm=" .. tostring(vim.fn.executable("npm") == 1))
       local ok_registry, registry = pcall(require, "mason-registry")
       if not ok_registry then
+        log_line("MasonToolsInstallSync registry missing")
         return
       end
 
@@ -48,11 +56,14 @@ return {
       vim.wait(60000, function()
         return refreshed
       end, 100)
+      log_line("MasonToolsInstallSync registry_refreshed=" .. tostring(refreshed))
 
       local tools = filtered_tools(false)
       if #tools == 0 then
+        log_line("MasonToolsInstallSync no tools after filtering")
         return
       end
+      log_line("MasonToolsInstallSync tools=" .. table.concat(tools, ", "))
 
       local pending = 0
       local to_install = {}
@@ -93,14 +104,16 @@ return {
       end
 
       if #to_install == 0 then
+        log_line("MasonToolsInstallSync already installed")
         return
       end
 
       vim.cmd("MasonInstall --sync " .. table.concat(to_install, " "))
+      log_line("MasonToolsInstallSync installed=" .. table.concat(to_install, ", "))
     end, {})
 
     require("mason-tool-installer").setup({
-      ensure_installed = filtered_tools(),
+      ensure_installed = filtered_tools(true),
       run_on_start = true,
       start_delay = 2000,
     })
