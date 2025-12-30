@@ -134,13 +134,21 @@ return {
         return out
       end
 
+      local function log_line(msg)
+        local path = vim.fn.stdpath("state") .. "/mason-sync.log"
+        vim.fn.writefile({ os.date("%F %T") .. " " .. msg }, path, "a")
+      end
+
       vim.api.nvim_create_user_command("MasonLspInstallSync", function()
         local packages = mason_lsp_packages()
         if #packages == 0 then
           return
         end
 
-        vim.notify("Mason LSP packages: " .. table.concat(packages, ", "), vim.log.levels.INFO)
+        log_line("MasonLspInstallSync data_dir=" .. vim.fn.stdpath("data"))
+        log_line("MasonLspInstallSync npm=" .. tostring(vim.fn.executable("npm") == 1))
+        log_line("MasonLspInstallSync servers=" .. table.concat(servers, ", "))
+        log_line("MasonLspInstallSync packages=" .. table.concat(packages, ", "))
 
         local ok_registry, registry = pcall(require, "mason-registry")
         if not ok_registry then
@@ -192,12 +200,12 @@ return {
         end
 
         if #to_install == 0 then
-          vim.notify("Mason LSP packages already installed", vim.log.levels.INFO)
+          log_line("MasonLspInstallSync already installed")
           return
         end
 
         vim.cmd("MasonInstall --sync " .. table.concat(to_install, " "))
-        vim.notify("Mason LSP installed: " .. table.concat(to_install, ", "), vim.log.levels.INFO)
+        log_line("MasonLspInstallSync installed=" .. table.concat(to_install, ", "))
       end, {})
 
       mason_lspconfig.setup({
