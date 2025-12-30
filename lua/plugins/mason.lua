@@ -160,9 +160,6 @@ return {
           log_line("MasonLspInstallSync no packages (" .. (err or "empty list") .. ")")
           return
         end
-        if err then
-          log_line("MasonLspInstallSync mappings error: " .. err)
-        end
         log_line("MasonLspInstallSync packages=" .. table.concat(packages, ", "))
 
         local ok_registry, registry = pcall(require, "mason-registry")
