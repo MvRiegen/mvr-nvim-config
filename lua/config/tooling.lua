@@ -37,6 +37,7 @@ M.linters_by_ft = {
   json = { "jsonlint" },
   typescript = { "eslint_d" },
   html = { "htmlhint" },
+  xml = { "xmllint" },
 }
 
 M.mason_tools = {
