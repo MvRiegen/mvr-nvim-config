@@ -15,6 +15,9 @@ local opts = {
     'typescript',
     'xml',
     'html',
+    'make',
+    'dockerfile',
+    'groovy',
   },
   auto_install = true,
   highlight = {
