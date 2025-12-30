@@ -8,6 +8,7 @@ M.formatter_exec = {
   rubocop = "rubocop",
   prettier = "prettier",
   ["puppet-lint"] = "puppet-lint",
+  xmllint = "xmllint",
 }
 
 M.formatters_by_ft = {
@@ -20,7 +21,7 @@ M.formatters_by_ft = {
   json = { "prettier" },
   yaml = { "prettier" },
   typescript = { "prettier" },
-  xml = { "prettier" },
+  xml = { "xmllint" },
   html = { "prettier" },
   ["*"] = { "trim_whitespace" },
 }

@@ -9,6 +9,15 @@ for name, cmd in pairs(tooling.formatter_exec) do
   }
 end
 
+formatters.xmllint = {
+  command = "xmllint",
+  args = { "--format", "-" },
+  stdin = true,
+  condition = function()
+    return tooling.is_executable("xmllint")
+  end,
+}
+
 return {
   "stevearc/conform.nvim",
   event = { "BufWritePre" },
