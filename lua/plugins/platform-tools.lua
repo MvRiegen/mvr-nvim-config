@@ -9,6 +9,15 @@ local function ensure_dir(path)
   end
 end
 
+local function notify_platform_tools_updated()
+  if not vim.api.nvim_exec_autocmds then
+    return
+  end
+  vim.schedule(function()
+    vim.api.nvim_exec_autocmds("User", { pattern = "PlatformToolsUpdated" })
+  end)
+end
+
 local function is_valid_jar(path)
   local uv = (vim.uv or vim.loop)
   local stat = uv.fs_stat(path)
@@ -27,7 +36,7 @@ local function is_valid_jar(path)
   return data == "PK"
 end
 
-local function download(url, out, sync)
+local function download(url, out, sync, on_success)
   local tmp = out .. ".part"
   if vim.fn.filereadable(tmp) == 1 then
     (vim.uv or vim.loop).fs_unlink(tmp)
@@ -47,6 +56,9 @@ local function download(url, out, sync)
     if ok and is_valid_jar(tmp) then
       local uv = (vim.uv or vim.loop)
       uv.fs_rename(tmp, out)
+      if on_success then
+        on_success(out)
+      end
       return true
     end
     if vim.fn.filereadable(tmp) == 1 then
@@ -87,12 +99,12 @@ local function install_lemminx(cfg, sync)
     end
     local url = urls[index]
     if sync then
-      if download(url, jar_path, true) then
+      if download(url, jar_path, true, notify_platform_tools_updated) then
         return
       end
       return try_url(index + 1)
     end
-    download(url, jar_path, false)
+    download(url, jar_path, false, notify_platform_tools_updated)
     -- For async installs, we don't chain retries; next run will retry if invalid.
   end
 
@@ -130,7 +142,9 @@ local function link_clangd(cfg)
   local ok, err = (vim.uv or vim.loop).fs_symlink(target, link_path)
   if not ok then
     vim.notify("platform-tools: failed to link clangd: " .. tostring(err), vim.log.levels.WARN)
+    return
   end
+  notify_platform_tools_updated()
 end
 
 local function run_install(sync)

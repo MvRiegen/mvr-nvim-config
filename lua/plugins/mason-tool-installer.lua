@@ -10,7 +10,6 @@ return {
       "phpcbf",
       "rubocop",
       "prettier",
-      "xmlformatter",
       -- linters
       "luacheck",
       "phpcs",

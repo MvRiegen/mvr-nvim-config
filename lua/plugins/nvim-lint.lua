@@ -42,9 +42,6 @@ return {
       json = { "jsonlint" },
       typescript = { "eslint_d" },
     }
-    if lint.linters.xmllint then
-      linters.xml = { "xmllint" }
-    end
     if lint.linters.htmlhint then
       linters.html = { "htmlhint" }
     end

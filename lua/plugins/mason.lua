@@ -46,14 +46,18 @@ return {
       local lemminx_jar = vim.fn.expand("~/.local/share/lemminx/lemminx.jar")
       local lemminx_available = vim.fn.filereadable(lemminx_jar) == 1
       local clangd_link = vim.fn.expand("~/.local/share/clangd/bin/clangd")
-      local clangd_cmd
-      if vim.fn.executable(clangd_link) == 1 then
-        clangd_cmd = clangd_link
-      elseif vim.fn.executable("clangd-16") == 1 then
-        clangd_cmd = vim.fn.exepath("clangd-16")
-      elseif vim.fn.executable("clangd") == 1 then
-        clangd_cmd = vim.fn.exepath("clangd")
+      local function resolve_clangd_cmd()
+        if vim.fn.executable(clangd_link) == 1 then
+          return clangd_link
+        end
+        if vim.fn.executable("clangd-16") == 1 then
+          return vim.fn.exepath("clangd-16")
+        end
+        if vim.fn.executable("clangd") == 1 then
+          return vim.fn.exepath("clangd")
+        end
       end
+      local clangd_cmd = resolve_clangd_cmd()
       local clangd_available = clangd_cmd ~= nil
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -129,22 +133,37 @@ return {
         },
       })
 
-      if is_aarch64 and lemminx_available then
-        lsp.config("lemminx", {
-          cmd = { "java", "-jar", lemminx_jar },
-          capabilities = capabilities,
-          on_attach = on_attach,
-        })
-        lsp.enable("lemminx")
+      local function refresh_platform_ls()
+        if not is_aarch64 then
+          return
+        end
+
+        local lemminx_ready = vim.fn.filereadable(lemminx_jar) == 1
+        local refreshed_clangd_cmd = resolve_clangd_cmd()
+
+        if lemminx_ready then
+          lsp.config("lemminx", {
+            cmd = { "java", "-jar", lemminx_jar },
+            capabilities = capabilities,
+            on_attach = on_attach,
+          })
+          lsp.enable("lemminx")
+        end
+        if refreshed_clangd_cmd then
+          lsp.config("clangd", {
+            cmd = { refreshed_clangd_cmd },
+            capabilities = capabilities,
+            on_attach = on_attach,
+          })
+          lsp.enable("clangd")
+        end
       end
-      if is_aarch64 and clangd_available then
-        lsp.config("clangd", {
-          cmd = { clangd_cmd },
-          capabilities = capabilities,
-          on_attach = on_attach,
-        })
-        lsp.enable("clangd")
-      end
+
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "PlatformToolsUpdated",
+        callback = refresh_platform_ls,
+      })
+      refresh_platform_ls()
     end
   },
 }
