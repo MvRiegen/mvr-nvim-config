@@ -26,7 +26,7 @@
   "neovim-project": { "branch": "main", "commit": "cfe4ffe8deb89a72b0a46b8f22183a3b534d9f00" },
   "neovim-session-manager": { "branch": "master", "commit": "3409dc920d40bec4c901c0a122a80bee03d6d1e1" },
   "nvim-cmp": { "branch": "main", "commit": "85bbfad83f804f11688d1ab9486b459e699292d6" },
-  "nvim-lint": { "branch": "master", "commit": "b98d8df2ba35cfcae154b50066703f785e21ba37" },
+  "nvim-lint": { "branch": "master", "commit": "59ecce281db62c41f1486e1fa8e2816be8d6736e" },
   "nvim-lspconfig": { "branch": "master", "commit": "0b38bc74487e73489624d61396af7805af9cc75f" },
   "nvim-navic": { "branch": "master", "commit": "f5eba192f39b453675d115351808bd51276d9de5" },
   "nvim-tree.lua": { "branch": "master", "commit": "b8b44b6a2494d086a9177251a119f9daec6cace8" },
