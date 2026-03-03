@@ -42,8 +42,46 @@ return {
     config = function()
       local lsp = vim.lsp
       local mason_lspconfig = require("mason-lspconfig")
-      local uname = (vim.uv or vim.loop).os_uname()
-      local is_aarch64 = uname and uname.machine == "aarch64"
+      local uv = vim.uv or vim.loop
+      local uname = uv.os_uname()
+      local machine = uname and type(uname.machine) == "string" and uname.machine:lower() or ""
+      local is_aarch64 = machine == "aarch64" or machine == "arm64"
+      local four_gib = 4 * 1024 * 1024 * 1024
+
+      local function read_text(path, max_bytes)
+        local fd = uv.fs_open(path, "r", 438)
+        if not fd then
+          return nil
+        end
+        local data = uv.fs_read(fd, max_bytes or 4096, 0)
+        uv.fs_close(fd)
+        if type(data) ~= "string" then
+          return nil
+        end
+        return data:gsub("%z", "")
+      end
+
+      local function total_memory_bytes()
+        if type(uv.get_total_memory) == "function" then
+          local total = uv.get_total_memory()
+          if type(total) == "number" and total > 0 then
+            return total
+          end
+        end
+        local meminfo = read_text("/proc/meminfo", 4096)
+        if not meminfo then
+          return nil
+        end
+        local kb = tonumber(meminfo:match("MemTotal:%s+(%d+)%s+kB"))
+        if not kb then
+          return nil
+        end
+        return kb * 1024
+      end
+
+      local total_memory = total_memory_bytes()
+      local low_memory = (type(total_memory) == "number" and total_memory < four_gib) or false
+      local small_arm64 = (is_aarch64 and low_memory) or false
       local lemminx_jar = vim.fn.expand("~/.local/share/lemminx/lemminx.jar")
       local lemminx_available = vim.fn.filereadable(lemminx_jar) == 1
       local clangd_link = vim.fn.expand("~/.local/share/clangd/bin/clangd")
@@ -110,7 +148,7 @@ return {
         "puppet",
         "ruby_lsp",
       }
-      if java_available then
+      if java_available and not small_arm64 then
         table.insert(servers, "groovyls")
       end
       if not is_aarch64 then
@@ -156,6 +194,7 @@ return {
       end
 
       log_line("mason-lspconfig loaded; data_dir=" .. vim.fn.stdpath("data"))
+      log_line("mason-lspconfig small_arm64=" .. tostring(small_arm64))
 
       vim.api.nvim_create_user_command("MasonLspInstallSync", function()
         log_line("MasonLspInstallSync start")

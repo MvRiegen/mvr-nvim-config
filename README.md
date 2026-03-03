@@ -17,6 +17,7 @@ Personal Neovim configuration with a clean, practical LSP/format/lint setup.
   - node/npm (for some LSPs and tools)
   - `shfmt`, `shellcheck` (shell formatting/lint)
   - `libxml2` (xmllint for XML formatting)
+  - `checkmake` for Makefile lint (Mason auto-skips it on arm64)
 
 ## Install
 

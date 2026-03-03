@@ -1,5 +1,23 @@
 local M = {}
 
+local function machine_arch()
+  local uv = vim.uv or vim.loop
+  if not uv or type(uv.os_uname) ~= "function" then
+    return ""
+  end
+  local uname = uv.os_uname()
+  local machine = uname and uname.machine or ""
+  if type(machine) ~= "string" then
+    return ""
+  end
+  return machine:lower()
+end
+
+function M.is_arm64()
+  local machine = machine_arch()
+  return machine == "aarch64" or machine == "arm64"
+end
+
 M.formatter_exec = {
   stylua = "stylua",
   ruff_format = "ruff",
@@ -68,6 +86,12 @@ M.mason_tools = {
   "checkmake",
   "hadolint",
 }
+
+if M.is_arm64() then
+  M.mason_tools = vim.tbl_filter(function(tool)
+    return tool ~= "checkmake"
+  end, M.mason_tools)
+end
 
 M.npm_tools = {
   prettier = true,
