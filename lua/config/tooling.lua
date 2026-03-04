@@ -18,6 +18,14 @@ function M.is_arm64()
   return machine == "aarch64" or machine == "arm64"
 end
 
+function M.is_windows()
+  return vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+end
+
+function M.has_msvc_cl()
+  return vim.fn.executable("cl") == 1
+end
+
 M.formatter_exec = {
   stylua = "stylua",
   ruff_format = "ruff",
@@ -91,6 +99,16 @@ if M.is_arm64() then
   M.mason_tools = vim.tbl_filter(function(tool)
     return tool ~= "checkmake"
   end, M.mason_tools)
+end
+
+if M.is_windows() and not M.has_msvc_cl() then
+  M.mason_tools = vim.tbl_filter(function(tool)
+    return tool ~= "luacheck"
+  end, M.mason_tools)
+
+  M.linters_by_ft.lua = vim.tbl_filter(function(name)
+    return name ~= "luacheck"
+  end, M.linters_by_ft.lua)
 end
 
 M.npm_tools = {
