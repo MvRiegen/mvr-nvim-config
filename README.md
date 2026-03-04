@@ -18,7 +18,7 @@ Personal Neovim configuration with a clean, practical LSP/format/lint setup.
   - `shfmt`, `shellcheck` (shell formatting/lint)
   - `libxml2` (xmllint for XML formatting)
   - `checkmake` for Makefile lint (Mason auto-skips it on arm64)
-  - on Windows, `luacheck` needs MSVC `cl` in `PATH` (this config auto-skips luacheck if `cl` is missing)
+  - on Windows, `luacheck` needs MSVC `cl` in `PATH` for build (this config only auto-skips Mason install of luacheck if `cl` is missing)
 
 ## Install
 
