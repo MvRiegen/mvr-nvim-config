@@ -1,0 +1,9 @@
+FROM ghcr.io/neovim/neovim:stable
+
+RUN apt-get update -qq \
+ && apt-get install -y -qq --no-install-recommends \
+      git \
+      curl \
+      luarocks \
+ && luarocks install luacheck \
+ && rm -rf /var/lib/apt/lists/*
