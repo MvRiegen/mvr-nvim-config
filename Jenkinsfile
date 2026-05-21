@@ -44,9 +44,17 @@ pipeline {
                 }
             }
             steps {
-                sh 'luacheck lua/ --config .luacheckrc'
+                sh 'luacheck lua/ --config .luacheckrc > luacheck.log 2>&1 || true'
             }
-            post { always { cleanWs() } }
+            post {
+                always {
+                    recordIssues(
+                        tools: [luaCheck(pattern: 'luacheck.log')],
+                        qualityGates: [[threshold: 1, type: 'TOTAL_ERROR', unstable: false]]
+                    )
+                    cleanWs()
+                }
+            }
         }
 
         stage('Startup') {
