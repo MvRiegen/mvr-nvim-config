@@ -94,7 +94,10 @@ local function install_lemminx(cfg, sync)
 
   local function try_url(index)
     if index > #urls then
-      vim.notify("platform-tools: failed to download a valid lemminx jar; set vim.g.platform_tools.lemminx_url", vim.log.levels.WARN)
+      vim.notify(
+        "platform-tools: failed to download a valid lemminx jar; set vim.g.platform_tools.lemminx_url",
+        vim.log.levels.WARN
+      )
       return
     end
     local url = urls[index]
