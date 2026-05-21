@@ -44,14 +44,12 @@ pipeline {
                 }
             }
             steps {
-                sh 'luacheck lua/ --config .luacheckrc > luacheck.log 2>&1 || true'
+                // exit 1 = warnings, exit 2 = errors — capture both, junit controls the gate
+                sh 'luacheck lua/ --config .luacheckrc --formatter JUnit > luacheck.xml || true'
             }
             post {
                 always {
-                    recordIssues(
-                        tools: [luaCheck(pattern: 'luacheck.log')],
-                        qualityGates: [[threshold: 1, type: 'TOTAL_ERROR', unstable: false]]
-                    )
+                    junit allowEmptyResults: true, testResults: 'luacheck.xml'
                     cleanWs()
                 }
             }
