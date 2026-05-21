@@ -113,13 +113,13 @@ def nvimStartupWindows() {
 
         # Isolated config/data directory to keep the agent workspace clean
         $tmp = Join-Path $env:TEMP ([System.IO.Path]::GetRandomFileName())
-        $env:XDG_CONFIG_HOME = $tmp + '\config'
-        $env:XDG_DATA_HOME   = $tmp + '\data'
-        $env:XDG_STATE_HOME  = $tmp + '\state'
-        $env:XDG_CACHE_HOME  = $tmp + '\cache'
+        $env:XDG_CONFIG_HOME = $tmp + '\\config'
+        $env:XDG_DATA_HOME   = $tmp + '\\data'
+        $env:XDG_STATE_HOME  = $tmp + '\\state'
+        $env:XDG_CACHE_HOME  = $tmp + '\\cache'
 
-        New-Item -ItemType Directory -Path ($env:XDG_CONFIG_HOME + '\nvim') -Force | Out-Null
-        Copy-Item -Recurse -Path . -Destination ($env:XDG_CONFIG_HOME + '\nvim')
+        New-Item -ItemType Directory -Path ($env:XDG_CONFIG_HOME + '\\nvim') -Force | Out-Null
+        Copy-Item -Recurse -Path . -Destination ($env:XDG_CONFIG_HOME + '\\nvim')
 
         Write-Host '==> nvim headless startup (windows)'
         & nvim --headless -c 'Lazy sync' -c 'qa'
