@@ -109,22 +109,22 @@ def nvimStartupLinux() {
 
 def nvimStartupWindows() {
     powershell '''
-        $ErrorActionPreference = "Stop"
+        $ErrorActionPreference = 'Stop'
 
         # Isolated config/data directory to keep the agent workspace clean
         $tmp = Join-Path $env:TEMP ([System.IO.Path]::GetRandomFileName())
-        $env:XDG_CONFIG_HOME = "$tmp\\config"
-        $env:XDG_DATA_HOME   = "$tmp\\data"
-        $env:XDG_STATE_HOME  = "$tmp\\state"
-        $env:XDG_CACHE_HOME  = "$tmp\\cache"
+        $env:XDG_CONFIG_HOME = $tmp + '\config'
+        $env:XDG_DATA_HOME   = $tmp + '\data'
+        $env:XDG_STATE_HOME  = $tmp + '\state'
+        $env:XDG_CACHE_HOME  = $tmp + '\cache'
 
-        New-Item -ItemType Directory -Path "$env:XDG_CONFIG_HOME\\nvim" -Force | Out-Null
-        Copy-Item -Recurse -Path . -Destination "$env:XDG_CONFIG_HOME\\nvim"
+        New-Item -ItemType Directory -Path ($env:XDG_CONFIG_HOME + '\nvim') -Force | Out-Null
+        Copy-Item -Recurse -Path . -Destination ($env:XDG_CONFIG_HOME + '\nvim')
 
-        Write-Host "==> nvim headless startup (windows)"
+        Write-Host '==> nvim headless startup (windows)'
         & nvim --headless -c 'Lazy sync' -c 'qa'
         if ($LASTEXITCODE -ne 0) {
-            throw "nvim exited with code $LASTEXITCODE"
+            throw ('nvim exited with code ' + $LASTEXITCODE)
         }
 
         Remove-Item -Recurse -Force $tmp
