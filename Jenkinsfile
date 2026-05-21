@@ -71,9 +71,10 @@ def nvimStartupLinux() {
         cp -r . "$XDG_CONFIG_HOME/nvim/"
 
         echo "==> nvim headless startup ($(uname -m) linux)"
-        nvim --headless "+Lazy! sync" "+qa" 2>&1
-
+        timeout 300 nvim --headless -c "Lazy sync" -c "qa" 2>&1
+        EXIT=$?
         rm -rf "$TMP"
+        [ $EXIT -eq 0 ] || exit $EXIT
     '''
 }
 
@@ -92,9 +93,14 @@ def nvimStartupWindows() {
         Copy-Item -Recurse -Path . -Destination "$env:XDG_CONFIG_HOME\\nvim"
 
         Write-Host "==> nvim headless startup (windows)"
-        & nvim --headless "+Lazy! sync" "+qa"
-        if ($LASTEXITCODE -ne 0) {
-            throw "nvim exited with code $LASTEXITCODE"
+        $proc = Start-Process nvim -ArgumentList '--headless', '-c', 'Lazy sync', '-c', 'qa' `
+            -PassThru -NoNewWindow
+        if (-not $proc.WaitForExit(300000)) {
+            $proc.Kill()
+            throw "nvim timed out after 300 seconds"
+        }
+        if ($proc.ExitCode -ne 0) {
+            throw "nvim exited with code $($proc.ExitCode)"
         }
 
         Remove-Item -Recurse -Force $tmp
