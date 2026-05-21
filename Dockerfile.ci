@@ -2,8 +2,9 @@ FROM anatolelucet/neovim:0.12-bookworm
 
 RUN apt-get update -qq \
  && apt-get install -y -qq --no-install-recommends \
-      git \
-      curl \
-      luarocks \
+     curl \
+     build-essential \
+     git \
+     luarocks \
  && luarocks install luacheck \
  && rm -rf /var/lib/apt/lists/*

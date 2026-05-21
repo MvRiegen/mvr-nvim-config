@@ -17,7 +17,6 @@ pipeline {
             steps {
                 sh 'luacheck lua/ --config .luacheckrc'
             }
-            post { cleanup { cleanWs() } }
         }
 
         stage('Startup') {
@@ -31,7 +30,6 @@ pipeline {
                         }
                     }
                     steps { script { nvimStartupLinux() } }
-                    post { cleanup { cleanWs() } }
                 }
 
                 stage('Linux arm64') {
@@ -42,22 +40,19 @@ pipeline {
                         }
                     }
                     steps { script { nvimStartupLinux() } }
-                    post { cleanup { cleanWs() } }
                 }
 
                 stage('Windows') {
                     agent { label 'windows' }
                     steps { script { nvimStartupWindows() } }
-                    post { cleanup { cleanWs() } }
                 }
             }
         }
     }
 
     post {
-        failure {
-            echo 'CI failed – please check the logs.'
-        }
+        always  { cleanWs() }
+        failure { echo 'CI failed – please check the logs.' }
     }
 }
 
