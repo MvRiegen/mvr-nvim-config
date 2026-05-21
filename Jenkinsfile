@@ -7,6 +7,35 @@ pipeline {
     }
 
     stages {
+        stage('Build CI Images') {
+            parallel {
+                stage('amd64') {
+                    agent {
+                        dockerfile {
+                            filename 'Dockerfile.ci'
+                            label 'docker && amd64'
+                        }
+                    }
+                    steps {
+                        sh 'luarocks --version'
+                    }
+                    post { always { cleanWs() } }
+                }
+                stage('arm64') {
+                    agent {
+                        dockerfile {
+                            filename 'Dockerfile.ci'
+                            label 'docker && arm64'
+                        }
+                    }
+                    steps {
+                        sh 'luarocks --version'
+                    }
+                    post { always { cleanWs() } }
+                }
+            }
+        }
+
         stage('Lint') {
             agent {
                 dockerfile {
@@ -93,7 +122,7 @@ def nvimStartupWindows() {
         Copy-Item -Recurse -Path . -Destination "$env:XDG_CONFIG_HOME\\nvim"
 
         Write-Host "==> nvim headless startup (windows)"
-        cmd /c 'nvim --headless -c "Lazy sync" -c "qa" < nul'
+        & nvim --headless -c 'Lazy sync' -c 'qa'
         if ($LASTEXITCODE -ne 0) {
             throw "nvim exited with code $LASTEXITCODE"
         }
