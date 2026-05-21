@@ -126,8 +126,9 @@ def nvimStartupWindows() {
         $env:XDG_STATE_HOME  = $tmp + '\\state'
         $env:XDG_CACHE_HOME  = $tmp + '\\cache'
 
-        New-Item -ItemType Directory -Path ($env:XDG_CONFIG_HOME + '\\nvim') -Force | Out-Null
-        Copy-Item -Recurse -Path . -Destination ($env:XDG_CONFIG_HOME + '\\nvim')
+        $nvimCfg = $env:XDG_CONFIG_HOME + '\\nvim'
+        New-Item -ItemType Directory -Path $nvimCfg -Force | Out-Null
+        Get-ChildItem -Force | Copy-Item -Recurse -Destination $nvimCfg -Force
 
         Write-Host '==> nvim headless startup (windows)'
         & nvim --headless -c 'Lazy sync' -c 'qa'
