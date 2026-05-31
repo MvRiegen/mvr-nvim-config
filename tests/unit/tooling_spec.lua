@@ -27,15 +27,15 @@ local function load_tooling_with_env(env)
     return env.executable and env.executable[cmd] or 0
   end
 
-  vim.uv.os_uname = function()
+  rawset(vim.uv, "os_uname", function()
     return { machine = env.machine }
-  end
+  end)
 
   local ok, loaded = pcall(dofile, root .. "/lua/config/tooling.lua")
 
   vim.fn.has = original_has
   vim.fn.executable = original_executable
-  vim.uv.os_uname = original_os_uname
+  rawset(vim.uv, "os_uname", original_os_uname)
 
   assert.is_true(ok)
   return loaded
@@ -64,97 +64,227 @@ end
 
 describe("config.tooling", function()
   it("detects arm64 machine names", function()
-    assert.is_true(tooling.is_arm64_machine("aarch64"))
-    assert.is_true(tooling.is_arm64_machine("arm64"))
-    assert.is_true(tooling.is_arm64_machine("ARM64"))
+    -- given
+    local machine_names = { "aarch64", "arm64", "ARM64" }
+
+    -- when
+    local results = vim.tbl_map(tooling.is_arm64_machine, machine_names)
+
+    -- then
+    assert.are.same({ true, true, true }, results)
   end)
 
   it("rejects non-arm64 machine names", function()
-    assert.is_false(tooling.is_arm64_machine("x86_64"))
-    assert.is_false(tooling.is_arm64_machine("amd64"))
-    assert.is_false(tooling.is_arm64_machine(nil))
+    -- given
+    local machine_names = { "x86_64", "amd64", nil }
+
+    -- when
+    local results = {
+      tooling.is_arm64_machine(machine_names[1]),
+      tooling.is_arm64_machine(machine_names[2]),
+      tooling.is_arm64_machine(machine_names[3]),
+    }
+
+    -- then
+    assert.are.same({ false, false, false }, results)
   end)
 
-  it("keeps default mason tools unchanged while filtering arm64 tools", function()
+  it("does not mutate mason tools while filtering", function()
+    -- given
     local tools = { "luacheck", "checkmake", "stylua" }
+
+    -- when
+    tooling.filter_mason_tools(tools, { is_arm64 = true, is_windows = false, has_msvc_cl = true })
+
+    -- then
+    assert.are.same({ "luacheck", "checkmake", "stylua" }, tools)
+  end)
+
+  it("removes checkmake on arm64", function()
+    -- given
+    local tools = { "luacheck", "checkmake", "stylua" }
+
+    -- when
     local filtered = tooling.filter_mason_tools(tools, { is_arm64 = true, is_windows = false, has_msvc_cl = true })
 
-    assert.are.same({ "luacheck", "checkmake", "stylua" }, tools)
+    -- then
     assert.are.same({ "luacheck", "stylua" }, filtered)
   end)
 
   it("removes luacheck on windows without MSVC cl", function()
-    local filtered = tooling.filter_mason_tools({ "luacheck", "checkmake", "stylua" }, {
+    -- given
+    local tools = { "luacheck", "checkmake", "stylua" }
+
+    -- when
+    local filtered = tooling.filter_mason_tools(tools, {
       is_arm64 = false,
       is_windows = true,
       has_msvc_cl = false,
     })
 
+    -- then
     assert.is_false(contains(filtered, "luacheck"))
     assert.is_true(contains(filtered, "checkmake"))
     assert.is_true(contains(filtered, "stylua"))
   end)
 
   it("removes architecture and windows-specific unsupported tools together", function()
-    local filtered = tooling.filter_mason_tools({ "luacheck", "checkmake", "stylua" }, {
+    -- given
+    local tools = { "luacheck", "checkmake", "stylua" }
+
+    -- when
+    local filtered = tooling.filter_mason_tools(tools, {
       is_arm64 = true,
       is_windows = true,
       has_msvc_cl = false,
     })
 
+    -- then
     assert.are.same({ "stylua" }, filtered)
   end)
 
   it("keeps luacheck on windows when MSVC cl is available", function()
-    local filtered = tooling.filter_mason_tools({ "luacheck", "stylua" }, {
+    -- given
+    local tools = { "luacheck", "stylua" }
+
+    -- when
+    local filtered = tooling.filter_mason_tools(tools, {
       is_arm64 = false,
       is_windows = true,
       has_msvc_cl = true,
     })
 
+    -- then
     assert.are.same({ "luacheck", "stylua" }, filtered)
   end)
 
-  it("unwraps command table before executable checks", function()
-    assert.are.equal("stylua", tooling.unwrap_cmd("stylua"))
-    assert.are.equal("ruff", tooling.unwrap_cmd({ "ruff", "format" }))
-    assert.is_nil(tooling.unwrap_cmd({}))
+  it("keeps string commands unchanged when unwrapping", function()
+    -- given
+    local cmd = "stylua"
+
+    -- when
+    local unwrapped = tooling.unwrap_cmd(cmd)
+
+    -- then
+    assert.are.equal("stylua", unwrapped)
   end)
 
-  it("checks executables after unwrapping command tables", function()
+  it("unwraps command tables to their first item", function()
+    -- given
+    local cmd = { "ruff", "format" }
+
+    -- when
+    local unwrapped = tooling.unwrap_cmd(cmd)
+
+    -- then
+    assert.are.equal("ruff", unwrapped)
+  end)
+
+  it("unwraps empty command tables to nil", function()
+    -- given
+    local cmd = {}
+
+    -- when
+    local unwrapped = tooling.unwrap_cmd(cmd)
+
+    -- then
+    assert.is_nil(unwrapped)
+  end)
+
+  it("checks executable command tables by their first item", function()
     with_vim_fn_stubs({
       executable = function(cmd)
         return cmd == "ruff" and 1 or 0
       end,
     }, function()
-      assert.is_true(tooling.is_executable({ "ruff", "format" }))
-      assert.is_false(tooling.is_executable("stylua"))
-      assert.is_true(tooling.is_executable(nil))
-      assert.is_true(tooling.is_executable({}))
+      -- given
+      local cmd = { "ruff", "format" }
+
+      -- when
+      local executable = tooling.is_executable(cmd)
+
+      -- then
+      assert.is_true(executable)
     end)
   end)
 
-  it("detects windows and MSVC cl through vim.fn", function()
+  it("rejects unavailable executable strings", function()
+    with_vim_fn_stubs({
+      executable = function(...)
+        return 0
+      end,
+    }, function()
+      -- given
+      local cmd = "stylua"
+
+      -- when
+      local executable = tooling.is_executable(cmd)
+
+      -- then
+      assert.is_false(executable)
+    end)
+  end)
+
+  it("accepts non-string executable values", function()
+    -- given
+    local commands = { nil, {} }
+
+    -- when
+    local results = {
+      tooling.is_executable(commands[1]),
+      tooling.is_executable(commands[2]),
+    }
+
+    -- then
+    assert.are.same({ true, true }, results)
+  end)
+
+  it("detects windows through vim.fn", function()
     with_vim_fn_stubs({
       has = function(feature)
         return feature == "win64" and 1 or 0
       end,
+    }, function()
+      -- given
+      local expected_windows = true
+
+      -- when
+      local is_windows = tooling.is_windows()
+
+      -- then
+      assert.are.equal(expected_windows, is_windows)
+    end)
+  end)
+
+  it("detects MSVC cl through vim.fn", function()
+    with_vim_fn_stubs({
       executable = function(cmd)
         return cmd == "cl" and 1 or 0
       end,
     }, function()
-      assert.is_true(tooling.is_windows())
-      assert.is_true(tooling.has_msvc_cl())
+      -- given
+      local expected_cl = true
+
+      -- when
+      local has_cl = tooling.has_msvc_cl()
+
+      -- then
+      assert.are.equal(expected_cl, has_cl)
     end)
   end)
 
   it("initializes mason tools from the detected environment", function()
-    local loaded = load_tooling_with_env({
+    -- given
+    local env = {
       machine = "aarch64",
       has = { win32 = 1 },
       executable = { cl = 0 },
-    })
+    }
 
+    -- when
+    local loaded = load_tooling_with_env(env)
+
+    -- then
     assert.is_false(contains(loaded.mason_tools, "checkmake"))
     assert.is_false(contains(loaded.mason_tools, "luacheck"))
     assert.is_true(contains(loaded.mason_tools, "stylua"))
