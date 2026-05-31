@@ -120,11 +120,9 @@ return {
       log_line("MasonToolsInstallSync changed=" .. table.concat(to_install, ", "))
     end, {})
 
-    refresh_registry()
-
     require("mason-tool-installer").setup({
       ensure_installed = filtered_tools(false),
-      auto_update = true,
+      auto_update = false,
       run_on_start = true,
       start_delay = 2000,
     })
