@@ -136,6 +136,33 @@ def nvimStartupWindows() {
     powershell '''
         $ErrorActionPreference = 'Stop'
 
+        function Remove-PathWithRetry {
+            param(
+                [Parameter(Mandatory = $true)]
+                [string] $Path,
+                [int] $Attempts = 6,
+                [int] $DelaySeconds = 2
+            )
+
+            if (-not (Test-Path -LiteralPath $Path)) {
+                return
+            }
+
+            for ($i = 1; $i -le $Attempts; $i++) {
+                try {
+                    Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction Stop
+                    return
+                } catch {
+                    if ($i -eq $Attempts) {
+                        throw
+                    }
+
+                    Write-Warning ("Cleanup failed for {0} (attempt {1}/{2}): {3}" -f $Path, $i, $Attempts, $_.Exception.Message)
+                    Start-Sleep -Seconds $DelaySeconds
+                }
+            }
+        }
+
         # Isolated config/data directory to keep the agent workspace clean
         $tmp = Join-Path $env:TEMP ([System.IO.Path]::GetRandomFileName())
         $env:XDG_CONFIG_HOME = $tmp + '\\config'
@@ -148,11 +175,16 @@ def nvimStartupWindows() {
         Get-ChildItem -Force | Copy-Item -Recurse -Destination $nvimCfg -Force
 
         Write-Host '==> nvim headless startup (windows)'
-        & nvim --headless -c 'Lazy sync' -c 'qa'
-        if ($LASTEXITCODE -ne 0) {
-            throw ('nvim exited with code ' + $LASTEXITCODE)
+        $nvimExitCode = 0
+        try {
+            & nvim --headless -c 'Lazy sync' -c 'qa'
+            $nvimExitCode = $LASTEXITCODE
+        } finally {
+            Remove-PathWithRetry -Path $tmp
         }
 
-        Remove-Item -Recurse -Force $tmp
+        if ($nvimExitCode -ne 0) {
+            throw ('nvim exited with code ' + $nvimExitCode)
+        }
     '''
 }
