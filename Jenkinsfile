@@ -2,7 +2,8 @@ pipeline {
     agent none
 
     options {
-        timeout(time: 30, unit: 'MINUTES')
+        // Includes queue/provisioning time, so keep generous for cold-starting agents.
+        timeout(time: 60, unit: 'MINUTES')
         disableConcurrentBuilds()
     }
 
