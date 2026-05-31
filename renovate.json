@@ -10,7 +10,7 @@
         "/^Jenkinsfile$/"
       ],
       "matchStrings": [
-        "git -C \"\\$PLENARY_PATH\" checkout (?<currentDigest>[a-f0-9]{40})"
+        "git -C \"\\$PLENARY_PATH\" checkout --quiet (?<currentDigest>[a-f0-9]{40})"
       ],
       "currentValueTemplate": "master",
       "depNameTemplate": "plenary.nvim",

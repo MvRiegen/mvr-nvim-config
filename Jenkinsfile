@@ -70,7 +70,7 @@ pipeline {
                     export PLENARY_PATH="$TMP/plenary.nvim"
 
                     git clone --filter=blob:none https://github.com/nvim-lua/plenary.nvim "$PLENARY_PATH"
-                    git -C "$PLENARY_PATH" checkout 74b06c6c75e4eeb3108ec01852001636d85a932b
+                    git -C "$PLENARY_PATH" checkout --quiet 74b06c6c75e4eeb3108ec01852001636d85a932b
 
                     nvim --headless -u tests/minimal_init.lua -c "PlenaryBustedDirectory tests/unit { minimal_init = 'tests/minimal_init.lua' }"
                 '''
