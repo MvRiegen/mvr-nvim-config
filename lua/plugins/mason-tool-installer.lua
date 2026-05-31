@@ -1,4 +1,5 @@
 local tooling = require("config.tooling")
+local mason_sync = require("config.mason_sync")
 
 return {
   "WhoIsSethDaniel/mason-tool-installer.nvim",
@@ -91,22 +92,14 @@ return {
       for _, name in ipairs(tools) do
         local ok_pkg, pkg = pcall(registry.get_package, name)
         if ok_pkg then
-          if not pkg:is_installed() then
-            table.insert(to_install, name)
-          else
-            if type(pkg.check_new_version) == "function" then
-              pending = pending + 1
-              pkg:check_new_version(function(success)
-                if success then
-                  table.insert(to_install, name)
-                end
-                pending = pending - 1
-                if pending == 0 then
-                  finalize()
-                end
-              end)
+          mason_sync.queue_install_or_update(name, pkg, to_install, function()
+            pending = pending + 1
+          end, function()
+            pending = pending - 1
+            if pending == 0 then
+              finalize()
             end
-          end
+          end)
         end
       end
 
@@ -124,13 +117,14 @@ return {
       end
 
       vim.cmd("MasonInstall --sync " .. table.concat(to_install, " "))
-      log_line("MasonToolsInstallSync installed=" .. table.concat(to_install, ", "))
+      log_line("MasonToolsInstallSync changed=" .. table.concat(to_install, ", "))
     end, {})
 
     refresh_registry()
 
     require("mason-tool-installer").setup({
       ensure_installed = filtered_tools(false),
+      auto_update = true,
       run_on_start = true,
       start_delay = 2000,
     })

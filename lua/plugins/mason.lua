@@ -16,6 +16,8 @@ local lua_ls_setup = {
   },
 }
 
+local mason_sync = require("config.mason_sync")
+
 -- Standardkonfiguration mit Icons setzen
 return {
   {
@@ -240,20 +242,14 @@ return {
         for _, name in ipairs(packages) do
           local ok_pkg, pkg = pcall(registry.get_package, name)
           if ok_pkg then
-            if not pkg:is_installed() then
-              table.insert(to_install, name)
-            elseif type(pkg.check_new_version) == "function" then
+            mason_sync.queue_install_or_update(name, pkg, to_install, function()
               pending = pending + 1
-              pkg:check_new_version(function(success)
-                if success then
-                  table.insert(to_install, name)
-                end
-                pending = pending - 1
-                if pending == 0 then
-                  finalize()
-                end
-              end)
-            end
+            end, function()
+              pending = pending - 1
+              if pending == 0 then
+                finalize()
+              end
+            end)
           end
         end
 
@@ -271,7 +267,7 @@ return {
         end
 
         vim.cmd("MasonInstall --sync " .. table.concat(to_install, " "))
-        log_line("MasonLspInstallSync installed=" .. table.concat(to_install, ", "))
+        log_line("MasonLspInstallSync changed=" .. table.concat(to_install, ", "))
       end, {})
 
       mason_lspconfig.setup({
