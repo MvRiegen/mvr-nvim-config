@@ -111,6 +111,14 @@ pipeline {
                     set -e
                     TMP=$(mktemp -d)
                     trap 'rm -rf "$TMP"' EXIT
+
+                    export HOME="$TMP/home"
+                    export XDG_CONFIG_HOME="$TMP/config"
+                    export XDG_DATA_HOME="$TMP/data"
+                    export XDG_STATE_HOME="$TMP/state"
+                    export XDG_CACHE_HOME="$TMP/cache"
+                    mkdir -p "$HOME" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME"
+
                     export PLENARY_PATH="$TMP/plenary.nvim"
 
                     git clone --filter=blob:none https://github.com/nvim-lua/plenary.nvim "$PLENARY_PATH"
