@@ -1,5 +1,14 @@
 local M = {}
 
+function M.is_arm64_machine(machine)
+  if type(machine) ~= "string" then
+    return false
+  end
+
+  machine = machine:lower()
+  return machine == "aarch64" or machine == "arm64"
+end
+
 local function machine_arch()
   local uv = vim.uv or vim.loop
   if not uv or type(uv.os_uname) ~= "function" then
@@ -14,8 +23,7 @@ local function machine_arch()
 end
 
 function M.is_arm64()
-  local machine = machine_arch()
-  return machine == "aarch64" or machine == "arm64"
+  return M.is_arm64_machine(machine_arch())
 end
 
 function M.is_windows()
@@ -75,7 +83,7 @@ M.linters_by_ft = {
   dockerfile = { "hadolint" },
 }
 
-M.mason_tools = {
+M.default_mason_tools = {
   "stylua",
   "ruff",
   "phpcbf",
@@ -95,17 +103,36 @@ M.mason_tools = {
   "hadolint",
 }
 
-if M.is_arm64() then
-  M.mason_tools = vim.tbl_filter(function(tool)
-    return tool ~= "checkmake"
-  end, M.mason_tools)
+local function without_tools(tools, excluded)
+  local filtered = {}
+  for _, tool in ipairs(tools) do
+    if not excluded[tool] then
+      filtered[#filtered + 1] = tool
+    end
+  end
+  return filtered
 end
 
-if M.is_windows() and not M.has_msvc_cl() then
-  M.mason_tools = vim.tbl_filter(function(tool)
-    return tool ~= "luacheck"
-  end, M.mason_tools)
+function M.filter_mason_tools(tools, opts)
+  opts = opts or {}
+  local filtered = without_tools(tools, {})
+
+  if opts.is_arm64 then
+    filtered = without_tools(filtered, { checkmake = true })
+  end
+
+  if opts.is_windows and not opts.has_msvc_cl then
+    filtered = without_tools(filtered, { luacheck = true })
+  end
+
+  return filtered
 end
+
+M.mason_tools = M.filter_mason_tools(M.default_mason_tools, {
+  is_arm64 = M.is_arm64(),
+  is_windows = M.is_windows(),
+  has_msvc_cl = M.has_msvc_cl(),
+})
 
 M.npm_tools = {
   prettier = true,
@@ -115,7 +142,7 @@ M.npm_tools = {
   htmlhint = true,
 }
 
-local function unwrap_cmd(cmd)
+function M.unwrap_cmd(cmd)
   if type(cmd) == "table" then
     return cmd[1]
   end
@@ -123,7 +150,7 @@ local function unwrap_cmd(cmd)
 end
 
 function M.is_executable(cmd)
-  cmd = unwrap_cmd(cmd)
+  cmd = M.unwrap_cmd(cmd)
   if type(cmd) ~= "string" then
     return true
   end

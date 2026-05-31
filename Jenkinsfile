@@ -45,7 +45,7 @@ pipeline {
             }
             steps {
                 // exit 1 = warnings, exit 2 = errors — capture both, junit controls the gate
-                sh 'luacheck lua/ --config .luacheckrc --formatter JUnit > luacheck.xml || true'
+                sh 'luacheck lua/ tests/ --config .luacheckrc --formatter JUnit > luacheck.xml || true'
             }
             post {
                 always {
@@ -53,6 +53,25 @@ pipeline {
                     cleanWs()
                 }
             }
+        }
+
+        stage('Unit') {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile.ci'
+                    label 'docker && (amd64 || arm64)'
+                }
+            }
+            steps {
+                sh '''
+                    set -e
+                    for test in tests/unit/*_spec.lua; do
+                        [ -e "$test" ] || continue
+                        nvim --headless -u NONE -l "$test"
+                    done
+                '''
+            }
+            post { always { cleanWs() } }
         }
 
         stage('Startup') {
