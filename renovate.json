@@ -16,6 +16,19 @@
       "depNameTemplate": "plenary.nvim",
       "packageNameTemplate": "https://github.com/nvim-lua/plenary.nvim",
       "datasourceTemplate": "git-refs"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^Dockerfile\\.ci$/"
+      ],
+      "matchStrings": [
+        "ARG LUALS_VERSION=(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "LuaLS/lua-language-server",
+      "packageNameTemplate": "LuaLS/lua-language-server",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
     }
   ]
 }

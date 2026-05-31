@@ -1,4 +1,6 @@
-FROM anatolelucet/neovim:0.12-bookworm@sha256:5b673cabca92a3ec5e759b87b0a126772f7b790535f4bc06bcb997c888fc7993
+FROM anatolelucet/neovim@sha256:5b673cabca92a3ec5e759b87b0a126772f7b790535f4bc06bcb997c888fc7993
+
+ARG LUALS_VERSION=3.18.0
 
 RUN apt-get update -qq \
  && apt-get install -y -qq --no-install-recommends \
@@ -8,4 +10,17 @@ RUN apt-get update -qq \
      git \
      luarocks \
  && luarocks install luacheck \
+ && set -eux; \
+    case "$(uname -m)" in \
+      x86_64) luals_arch="x64" ;; \
+      aarch64|arm64) luals_arch="arm64" ;; \
+      *) echo "unsupported architecture: $(uname -m)" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL \
+      "https://github.com/LuaLS/lua-language-server/releases/download/${LUALS_VERSION}/lua-language-server-${LUALS_VERSION}-linux-${luals_arch}.tar.gz" \
+      -o /tmp/lua-language-server.tar.gz; \
+    mkdir -p /opt/lua-language-server; \
+    tar -xzf /tmp/lua-language-server.tar.gz -C /opt/lua-language-server; \
+    ln -s /opt/lua-language-server/bin/lua-language-server /usr/local/bin/lua-language-server; \
+    rm /tmp/lua-language-server.tar.gz \
  && rm -rf /var/lib/apt/lists/*

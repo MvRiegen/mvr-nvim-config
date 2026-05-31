@@ -44,7 +44,56 @@ pipeline {
                 }
             }
             steps {
-                sh 'luacheck lua/ tests/ --config .luacheckrc'
+                script {
+                    def status = sh(returnStatus: true, script: '''
+                        set +e
+                        luacheck lua/ tests/ --config .luacheckrc --formatter plain --codes --no-color > luacheck.log 2>&1
+                        LUACHECK_STATUS=$?
+                        set -e
+
+                        cat luacheck.log
+                        nvim --headless -u NONE -l tests/checkstyle_from_log.lua luacheck.log luacheck-checkstyle.xml luacheck
+                        exit $LUACHECK_STATUS
+                    ''')
+                    recordIssues(
+                        enabledForFailure: true,
+                        tools: [checkStyle(id: 'luacheck', name: 'Luacheck', pattern: 'luacheck-checkstyle.xml')]
+                    )
+                    if (status != 0) {
+                        error("luacheck failed with exit code ${status}")
+                    }
+                }
+            }
+            post { always { cleanWs() } }
+        }
+
+        stage('LuaLS') {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile.ci'
+                    label 'docker && (amd64 || arm64)'
+                }
+            }
+            steps {
+                script {
+                    def status = sh(returnStatus: true, script: '''
+                        set +e
+                        lua-language-server --check . --checklevel=Warning --configpath=.luarc.json > luals.log 2>&1
+                        LUALS_STATUS=$?
+                        set -e
+
+                        cat luals.log
+                        nvim --headless -u NONE -l tests/checkstyle_from_log.lua luals.log luals-checkstyle.xml luals
+                        exit $LUALS_STATUS
+                    ''')
+                    recordIssues(
+                        enabledForFailure: true,
+                        tools: [checkStyle(id: 'luals', name: 'LuaLS', pattern: 'luals-checkstyle.xml')]
+                    )
+                    if (status != 0) {
+                        error("LuaLS failed with exit code ${status}")
+                    }
+                }
             }
             post { always { cleanWs() } }
         }

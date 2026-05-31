@@ -2,5 +2,9 @@
 .state/
 .nvimlog
 luacheck.xml
+luacheck.log
+luacheck-checkstyle.xml
+luals.log
+luals-checkstyle.xml
 unit.log
 unit-results.xml
