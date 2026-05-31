@@ -40,7 +40,7 @@ pipeline {
             agent {
                 dockerfile {
                     filename 'Dockerfile.ci'
-                    label 'docker && amd64'
+                    label 'docker && (amd64 || arm64)'
                 }
             }
             steps {
