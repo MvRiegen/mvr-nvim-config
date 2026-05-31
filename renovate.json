@@ -2,5 +2,20 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:best-practices"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^Jenkinsfile$/"
+      ],
+      "matchStrings": [
+        "git -C \"\\$PLENARY_PATH\" checkout (?<currentDigest>[a-f0-9]{40})"
+      ],
+      "currentValueTemplate": "master",
+      "depNameTemplate": "plenary.nvim",
+      "packageNameTemplate": "https://github.com/nvim-lua/plenary.nvim",
+      "datasourceTemplate": "git-refs"
+    }
   ]
 }
