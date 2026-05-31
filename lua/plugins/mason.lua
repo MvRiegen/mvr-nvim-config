@@ -22,7 +22,7 @@ return {
     "williamboman/mason.nvim",
     event = "VimEnter",
     config = function()
-      require("mason").setup {
+      require("mason").setup({
         max_concurrent_installers = 1,
         ui = {
           icons = {
@@ -31,8 +31,8 @@ return {
             package_uninstalled = " ",
           },
         },
-      }
-    end
+      })
+    end,
   },
   {
     "williamboman/mason-lspconfig.nvim",
@@ -114,16 +114,16 @@ return {
         local map = function(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
         end
-        map('n', 'K', vim.lsp.buf.hover, "LSP hover")
-        map({ 'n', 'v' }, '<leader>ka', vim.lsp.buf.code_action, "Code action")
-        map('n', '<leader>kr', vim.lsp.buf.rename, "Rename symbol")
-        map('n', 'gd', vim.lsp.buf.definition, "Goto definition")
-        map('n', 'gD', vim.lsp.buf.declaration, "Goto declaration")
-        map('n', 'gi', vim.lsp.buf.implementation, "Goto implementation")
-        map('n', 'gr', vim.lsp.buf.references, "Goto references")
-        map('n', 'gl', vim.diagnostic.open_float, "Line diagnostics")
-        map('n', '[d', vim.diagnostic.goto_prev, "Prev diagnostic")
-        map('n', ']d', vim.diagnostic.goto_next, "Next diagnostic")
+        map("n", "K", vim.lsp.buf.hover, "LSP hover")
+        map({ "n", "v" }, "<leader>ka", vim.lsp.buf.code_action, "Code action")
+        map("n", "<leader>kr", vim.lsp.buf.rename, "Rename symbol")
+        map("n", "gd", vim.lsp.buf.definition, "Goto definition")
+        map("n", "gD", vim.lsp.buf.declaration, "Goto declaration")
+        map("n", "gi", vim.lsp.buf.implementation, "Goto implementation")
+        map("n", "gr", vim.lsp.buf.references, "Goto references")
+        map("n", "gl", vim.diagnostic.open_float, "Line diagnostics")
+        map("n", "[d", vim.diagnostic.goto_prev, "Prev diagnostic")
+        map("n", "]d", vim.diagnostic.goto_next, "Next diagnostic")
 
         if vim.lsp.inlay_hint and client.supports_method("textDocument/inlayHint") then
           pcall(vim.lsp.inlay_hint.enable, true, { bufnr = bufnr })
@@ -157,7 +157,13 @@ return {
       end
       if vim.fn.executable("npm") == 1 then
         vim.list_extend(servers, {
-          "jsonls", "yamlls", "ts_ls", "html", "bashls", "dockerls", "docker_compose_language_service",
+          "jsonls",
+          "yamlls",
+          "ts_ls",
+          "html",
+          "bashls",
+          "dockerls",
+          "docker_compose_language_service",
         })
       end
 
@@ -333,6 +339,6 @@ return {
         callback = refresh_platform_ls,
       })
       refresh_platform_ls()
-    end
+    end,
   },
 }

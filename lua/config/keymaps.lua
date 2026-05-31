@@ -1,9 +1,9 @@
 vim.opt.mouse = "a"
 
 -- Nvim-Tree
-vim.keymap.set("n","<leader>s",":NvimTreeToggle<CR>", { noremap = true, silent = true, desc = "NvimTree toggle" })
-vim.keymap.set("n","<leader>d",":NvimTreeFocus<CR>", { noremap = true, silent = true, desc = "NvimTree focus" })
-vim.keymap.set("n","<leader>c",":NvimTreeClose<CR>", { noremap = true, silent = true, desc = "NvimTree close" })
+vim.keymap.set("n", "<leader>s", ":NvimTreeToggle<CR>", { noremap = true, silent = true, desc = "NvimTree toggle" })
+vim.keymap.set("n", "<leader>d", ":NvimTreeFocus<CR>", { noremap = true, silent = true, desc = "NvimTree focus" })
+vim.keymap.set("n", "<leader>c", ":NvimTreeClose<CR>", { noremap = true, silent = true, desc = "NvimTree close" })
 
 -- Quick quit: close NvimTree if open, then quit all
 local function smart_quit()
@@ -13,4 +13,4 @@ local function smart_quit()
   end
   vim.cmd("qa")
 end
-vim.keymap.set('n', '<leader>qq', smart_quit, { desc = "Quit all (close tree)" })
+vim.keymap.set("n", "<leader>qq", smart_quit, { desc = "Quit all (close tree)" })

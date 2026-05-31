@@ -20,12 +20,7 @@ local function strip_ansi(line)
 end
 
 local function escape_attr(value)
-  return tostring(value)
-    :gsub("&", "&amp;")
-    :gsub("<", "&lt;")
-    :gsub(">", "&gt;")
-    :gsub('"', "&quot;")
-    :gsub("'", "&apos;")
+  return tostring(value):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"):gsub('"', "&quot;"):gsub("'", "&apos;")
 end
 
 local function severity(value)
@@ -37,8 +32,7 @@ local function severity(value)
 end
 
 local function parse_luals(line)
-  local file, line_number, column, level, message =
-    line:match("^%s*([^:]+):(%d+):(%d+)%s+%[([^%]]+)%]%s+(.+)$")
+  local file, line_number, column, level, message = line:match("^%s*([^:]+):(%d+):(%d+)%s+%[([^%]]+)%]%s+(.+)$")
   if not file then
     return nil
   end

@@ -20,12 +20,7 @@ local function strip_ansi(line)
 end
 
 local function escape_attr(value)
-  return tostring(value)
-    :gsub("&", "&amp;")
-    :gsub("<", "&lt;")
-    :gsub(">", "&gt;")
-    :gsub('"', "&quot;")
-    :gsub("'", "&apos;")
+  return tostring(value):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"):gsub('"', "&quot;"):gsub("'", "&apos;")
 end
 
 local function cdata(value)
@@ -96,10 +91,7 @@ local xml = {
 }
 
 for _, test in ipairs(tests) do
-  xml[#xml + 1] = ('  <testcase classname="%s" name="%s">'):format(
-    escape_attr(test.classname),
-    escape_attr(test.name)
-  )
+  xml[#xml + 1] = ('  <testcase classname="%s" name="%s">'):format(escape_attr(test.classname), escape_attr(test.name))
   if test.status == "Fail" then
     local message = table.concat(test.output, "\n"):gsub("^%s+", "")
     xml[#xml + 1] = ('    <failure message="%s">%s</failure>'):format(escape_attr(message), cdata(message))

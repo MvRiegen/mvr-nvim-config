@@ -1,146 +1,146 @@
 local function diff_source()
-	local gitsigns = vim.b.gitsigns_status_dict
-	if gitsigns then
-		return {
-			added = gitsigns.added,
-			modified = gitsigns.changed,
-			removed = gitsigns.removed,
-		}
-	end
+  local gitsigns = vim.b.gitsigns_status_dict
+  if gitsigns then
+    return {
+      added = gitsigns.added,
+      modified = gitsigns.changed,
+      removed = gitsigns.removed,
+    }
+  end
 end
 
 local function navic_location()
-	local ok, navic = pcall(require, "nvim-navic")
-	if not ok then
-		return ""
-	end
-	return navic.get_location()
+  local ok, navic = pcall(require, "nvim-navic")
+  if not ok then
+    return ""
+  end
+  return navic.get_location()
 end
 
 local function tooling_status()
-	local ft = vim.bo.filetype
-	if ft == "" then
-		return ""
-	end
+  local ft = vim.bo.filetype
+  if ft == "" then
+    return ""
+  end
 
-	local icons = {
-		format = "󰉼",
-		lint = "󰁨",
-	}
+  local icons = {
+    format = "󰉼",
+    lint = "󰁨",
+  }
 
-	local parts = {}
+  local parts = {}
 
-	local ok_conform, conform = pcall(require, "conform")
-	if ok_conform and conform.list_formatters then
-		local fmts = {}
-		for _, fmt in ipairs(conform.list_formatters(0)) do
-			local name = fmt.name
-			if name and fmt.available ~= false and name ~= "trim_whitespace" then
-				table.insert(fmts, name)
-			end
-		end
-		if #fmts > 0 then
-			table.insert(parts, icons.format .. " " .. table.concat(fmts, ","))
-		end
-	end
+  local ok_conform, conform = pcall(require, "conform")
+  if ok_conform and conform.list_formatters then
+    local fmts = {}
+    for _, fmt in ipairs(conform.list_formatters(0)) do
+      local name = fmt.name
+      if name and fmt.available ~= false and name ~= "trim_whitespace" then
+        table.insert(fmts, name)
+      end
+    end
+    if #fmts > 0 then
+      table.insert(parts, icons.format .. " " .. table.concat(fmts, ","))
+    end
+  end
 
-	local ok_lint, lint = pcall(require, "lint")
-	if ok_lint then
-		local linters = lint.linters_by_ft[ft] or {}
-		if #linters > 0 then
-			table.insert(parts, icons.lint .. " " .. table.concat(linters, ","))
-		end
-	end
+  local ok_lint, lint = pcall(require, "lint")
+  if ok_lint then
+    local linters = lint.linters_by_ft[ft] or {}
+    if #linters > 0 then
+      table.insert(parts, icons.lint .. " " .. table.concat(linters, ","))
+    end
+  end
 
-	return table.concat(parts, " ")
+  return table.concat(parts, " ")
 end
 
 local function lsp_versions()
-	local clients = vim.lsp.get_clients({ bufnr = 0 })
-	if not clients or #clients == 0 then
-		return ""
-	end
+  local clients = vim.lsp.get_clients({ bufnr = 0 })
+  if not clients or #clients == 0 then
+    return ""
+  end
 
-	local parts = {}
-	for _, client in ipairs(clients) do
-		local name = client.name or "lsp"
-		local version = client.server_info and client.server_info.version
-		if version and version ~= "" then
-			table.insert(parts, name .. " " .. version)
-		else
-			table.insert(parts, name)
-		end
-	end
+  local parts = {}
+  for _, client in ipairs(clients) do
+    local name = client.name or "lsp"
+    local version = client.server_info and client.server_info.version
+    if version and version ~= "" then
+      table.insert(parts, name .. " " .. version)
+    else
+      table.insert(parts, name)
+    end
+  end
 
-	return "󰒋 " .. table.concat(parts, ",")
+  return "󰒋 " .. table.concat(parts, ",")
 end
 
 local function line_ending()
-	local icons = {
-		lf = "",
-		crlf = "",
-		cr = "",
-	}
-	local ff = vim.bo.fileformat
-	if ff == "dos" then
-		return icons.crlf .. " CRLF"
-	elseif ff == "mac" then
-		return icons.cr .. " CR"
-	end
-	return icons.lf .. " LF"
+  local icons = {
+    lf = "",
+    crlf = "",
+    cr = "",
+  }
+  local ff = vim.bo.fileformat
+  if ff == "dos" then
+    return icons.crlf .. " CRLF"
+  elseif ff == "mac" then
+    return icons.cr .. " CR"
+  end
+  return icons.lf .. " LF"
 end
 
 local config = function()
-	require("lualine").setup({
-		options = {
-			icons_enabled = true,
-			theme = "catppuccin-nvim",
-			component_separators = { left = "", right = "" },
-			section_separators = { left = "", right = "" },
-			disabled_filetypes = {
-				statusline = {},
-				winbar = {},
-			},
-			ignore_focus = {},
-			always_divide_middle = true,
-			globalstatus = true,
-			refresh = {
-				statusline = 1000,
-				tabline = 1000,
-				winbar = 1000,
-			},
-		},
-		sections = {
-			lualine_a = { "mode" },
-			lualine_b = {
-				"branch",
-				{ "diff", source = diff_source },
-				"diagnostics",
-			},
-			lualine_c = { navic_location },
-			lualine_x = { tooling_status, lsp_versions, "encoding", line_ending, "filetype" },
-			lualine_y = { "progress" },
-			lualine_z = { "location" },
-		},
-		inactive_sections = {
-			lualine_a = {},
-			lualine_b = {},
-			lualine_c = {},
-			lualine_x = { "location" },
-			lualine_y = {},
-			lualine_z = {},
-		},
-		tabline = {},
-		winbar = {},
-		inactive_winbar = {},
-		extensions = {},
-	})
+  require("lualine").setup({
+    options = {
+      icons_enabled = true,
+      theme = "catppuccin-nvim",
+      component_separators = { left = "", right = "" },
+      section_separators = { left = "", right = "" },
+      disabled_filetypes = {
+        statusline = {},
+        winbar = {},
+      },
+      ignore_focus = {},
+      always_divide_middle = true,
+      globalstatus = true,
+      refresh = {
+        statusline = 1000,
+        tabline = 1000,
+        winbar = 1000,
+      },
+    },
+    sections = {
+      lualine_a = { "mode" },
+      lualine_b = {
+        "branch",
+        { "diff", source = diff_source },
+        "diagnostics",
+      },
+      lualine_c = { navic_location },
+      lualine_x = { tooling_status, lsp_versions, "encoding", line_ending, "filetype" },
+      lualine_y = { "progress" },
+      lualine_z = { "location" },
+    },
+    inactive_sections = {
+      lualine_a = {},
+      lualine_b = {},
+      lualine_c = {},
+      lualine_x = { "location" },
+      lualine_y = {},
+      lualine_z = {},
+    },
+    tabline = {},
+    winbar = {},
+    inactive_winbar = {},
+    extensions = {},
+  })
 end
 
 -- Lualine installieren
 return {
-	"nvim-lualine/lualine.nvim",
-	dependencies = { "nvim-tree/nvim-web-devicons" },
-	event = "VeryLazy",
-	config = config,
+  "nvim-lualine/lualine.nvim",
+  dependencies = { "nvim-tree/nvim-web-devicons" },
+  event = "VeryLazy",
+  config = config,
 }

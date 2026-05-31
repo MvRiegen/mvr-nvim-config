@@ -8,7 +8,7 @@ return {
     },
     picker = {
       type = "telescope",
-    }
+    },
   },
   init = function()
     -- enable saving the state of plugins in the session

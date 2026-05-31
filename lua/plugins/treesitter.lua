@@ -1,23 +1,23 @@
 local opts = {
   ensure_installed = {
-    'c',
-    'lua',
-    'vim',
-    'vimdoc',
-    'query',
-    'php',
-    'puppet',
-    'markdown',
-    'markdown_inline',
-    'json',
-    'yaml',
-    'javascript',
-    'typescript',
-    'xml',
-    'html',
-    'make',
-    'dockerfile',
-    'groovy',
+    "c",
+    "lua",
+    "vim",
+    "vimdoc",
+    "query",
+    "php",
+    "puppet",
+    "markdown",
+    "markdown_inline",
+    "json",
+    "yaml",
+    "javascript",
+    "typescript",
+    "xml",
+    "html",
+    "make",
+    "dockerfile",
+    "groovy",
   },
   auto_install = true,
   highlight = {
@@ -50,20 +50,20 @@ local opts = {
 }
 
 local function config()
-  require('nvim-treesitter.configs').setup(opts)
+  require("nvim-treesitter.configs").setup(opts)
 end
 
 return {
-  'nvim-treesitter/nvim-treesitter',
+  "nvim-treesitter/nvim-treesitter",
   config = config,
   dependencies = {
-    'nvim-treesitter/nvim-treesitter-textobjects',
+    "nvim-treesitter/nvim-treesitter-textobjects",
     {
-      'nvim-treesitter/nvim-treesitter-context',
+      "nvim-treesitter/nvim-treesitter-context",
       config = function()
         require("treesitter-context").setup({})
       end,
     },
   },
-  build = ':TSUpdate',
+  build = ":TSUpdate",
 }
