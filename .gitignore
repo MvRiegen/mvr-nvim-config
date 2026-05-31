@@ -1,3 +1,6 @@
 .bundle/
 .state/
 .nvimlog
+luacheck.xml
+unit.log
+unit-results.xml

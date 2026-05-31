@@ -44,15 +44,9 @@ pipeline {
                 }
             }
             steps {
-                // exit 1 = warnings, exit 2 = errors — capture both, junit controls the gate
-                sh 'luacheck lua/ tests/ --config .luacheckrc --formatter JUnit > luacheck.xml || true'
+                sh 'luacheck lua/ tests/ --config .luacheckrc'
             }
-            post {
-                always {
-                    junit allowEmptyResults: true, testResults: 'luacheck.xml'
-                    cleanWs()
-                }
-            }
+            post { always { cleanWs() } }
         }
 
         stage('Unit') {
@@ -72,10 +66,22 @@ pipeline {
                     git clone --filter=blob:none https://github.com/nvim-lua/plenary.nvim "$PLENARY_PATH"
                     git -C "$PLENARY_PATH" checkout --quiet 74b06c6c75e4eeb3108ec01852001636d85a932b
 
-                    nvim --headless -u tests/minimal_init.lua -c "PlenaryBustedDirectory tests/unit { minimal_init = 'tests/minimal_init.lua' }"
+                    set +e
+                    nvim --headless -u tests/minimal_init.lua -c "PlenaryBustedDirectory tests/unit { minimal_init = 'tests/minimal_init.lua' }" > unit.log 2>&1
+                    UNIT_STATUS=$?
+                    set -e
+
+                    cat unit.log
+                    nvim --headless -u NONE -l tests/plenary_to_junit.lua unit.log unit-results.xml
+                    exit $UNIT_STATUS
                 '''
             }
-            post { always { cleanWs() } }
+            post {
+                always {
+                    junit allowEmptyResults: false, testResults: 'unit-results.xml'
+                    cleanWs()
+                }
+            }
         }
 
         stage('Startup') {
