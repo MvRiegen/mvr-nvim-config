@@ -65,10 +65,14 @@ pipeline {
             steps {
                 sh '''
                     set -e
-                    for test in tests/unit/*_spec.lua; do
-                        [ -e "$test" ] || continue
-                        nvim --headless -u NONE -l "$test"
-                    done
+                    TMP=$(mktemp -d)
+                    trap 'rm -rf "$TMP"' EXIT
+                    export PLENARY_PATH="$TMP/plenary.nvim"
+
+                    git clone --filter=blob:none https://github.com/nvim-lua/plenary.nvim "$PLENARY_PATH"
+                    git -C "$PLENARY_PATH" checkout 74b06c6c75e4eeb3108ec01852001636d85a932b
+
+                    nvim --headless -u tests/minimal_init.lua -c "PlenaryBustedDirectory tests/unit { minimal_init = 'tests/minimal_init.lua' }"
                 '''
             }
             post { always { cleanWs() } }

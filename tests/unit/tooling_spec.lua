@@ -1,13 +1,9 @@
 local test_file = debug.getinfo(1, "S").source:sub(2)
 local root = vim.fn.fnamemodify(test_file, ":p:h:h:h")
-
 local tooling = dofile(root .. "/lua/config/tooling.lua")
 
-local tests = {}
-
-local function add(name, fn)
-  tests[#tests + 1] = { name = name, fn = fn }
-end
+---@type any
+local assert = assert
 
 local function contains(list, value)
   for _, item in ipairs(list) do
@@ -18,90 +14,62 @@ local function contains(list, value)
   return false
 end
 
-local function assert_contains(list, value)
-  assert(contains(list, value), ("expected list to contain %s"):format(value))
-end
+describe("config.tooling", function()
+  it("detects arm64 machine names", function()
+    assert.is_true(tooling.is_arm64_machine("aarch64"))
+    assert.is_true(tooling.is_arm64_machine("arm64"))
+    assert.is_true(tooling.is_arm64_machine("ARM64"))
+  end)
 
-local function assert_not_contains(list, value)
-  assert(not contains(list, value), ("expected list not to contain %s"):format(value))
-end
+  it("rejects non-arm64 machine names", function()
+    assert.is_false(tooling.is_arm64_machine("x86_64"))
+    assert.is_false(tooling.is_arm64_machine("amd64"))
+    assert.is_false(tooling.is_arm64_machine(nil))
+  end)
 
-local function assert_list_eq(actual, expected)
-  assert(vim.deep_equal(actual, expected), ("expected %s, got %s"):format(vim.inspect(expected), vim.inspect(actual)))
-end
+  it("keeps default mason tools unchanged while filtering arm64 tools", function()
+    local tools = { "luacheck", "checkmake", "stylua" }
+    local filtered = tooling.filter_mason_tools(tools, { is_arm64 = true, is_windows = false, has_msvc_cl = true })
 
-add("detects arm64 machine names", function()
-  assert(tooling.is_arm64_machine("aarch64"))
-  assert(tooling.is_arm64_machine("arm64"))
-  assert(tooling.is_arm64_machine("ARM64"))
+    assert.are.same({ "luacheck", "checkmake", "stylua" }, tools)
+    assert.are.same({ "luacheck", "stylua" }, filtered)
+  end)
+
+  it("removes luacheck on windows without MSVC cl", function()
+    local filtered = tooling.filter_mason_tools({ "luacheck", "checkmake", "stylua" }, {
+      is_arm64 = false,
+      is_windows = true,
+      has_msvc_cl = false,
+    })
+
+    assert.is_false(contains(filtered, "luacheck"))
+    assert.is_true(contains(filtered, "checkmake"))
+    assert.is_true(contains(filtered, "stylua"))
+  end)
+
+  it("removes architecture and windows-specific unsupported tools together", function()
+    local filtered = tooling.filter_mason_tools({ "luacheck", "checkmake", "stylua" }, {
+      is_arm64 = true,
+      is_windows = true,
+      has_msvc_cl = false,
+    })
+
+    assert.are.same({ "stylua" }, filtered)
+  end)
+
+  it("keeps luacheck on windows when MSVC cl is available", function()
+    local filtered = tooling.filter_mason_tools({ "luacheck", "stylua" }, {
+      is_arm64 = false,
+      is_windows = true,
+      has_msvc_cl = true,
+    })
+
+    assert.are.same({ "luacheck", "stylua" }, filtered)
+  end)
+
+  it("unwraps command table before executable checks", function()
+    assert.are.equal("stylua", tooling.unwrap_cmd("stylua"))
+    assert.are.equal("ruff", tooling.unwrap_cmd({ "ruff", "format" }))
+    assert.is_nil(tooling.unwrap_cmd({}))
+  end)
 end)
-
-add("rejects non-arm64 machine names", function()
-  assert(not tooling.is_arm64_machine("x86_64"))
-  assert(not tooling.is_arm64_machine("amd64"))
-  assert(not tooling.is_arm64_machine(nil))
-end)
-
-add("keeps default mason tools unchanged while filtering arm64 tools", function()
-  local tools = { "luacheck", "checkmake", "stylua" }
-  local filtered = tooling.filter_mason_tools(tools, { is_arm64 = true, is_windows = false, has_msvc_cl = true })
-
-  assert_list_eq(tools, { "luacheck", "checkmake", "stylua" })
-  assert_list_eq(filtered, { "luacheck", "stylua" })
-end)
-
-add("removes luacheck on windows without MSVC cl", function()
-  local filtered = tooling.filter_mason_tools({ "luacheck", "checkmake", "stylua" }, {
-    is_arm64 = false,
-    is_windows = true,
-    has_msvc_cl = false,
-  })
-
-  assert_not_contains(filtered, "luacheck")
-  assert_contains(filtered, "checkmake")
-  assert_contains(filtered, "stylua")
-end)
-
-add("removes architecture and windows-specific unsupported tools together", function()
-  local filtered = tooling.filter_mason_tools({ "luacheck", "checkmake", "stylua" }, {
-    is_arm64 = true,
-    is_windows = true,
-    has_msvc_cl = false,
-  })
-
-  assert_list_eq(filtered, { "stylua" })
-end)
-
-add("keeps luacheck on windows when MSVC cl is available", function()
-  local filtered = tooling.filter_mason_tools({ "luacheck", "stylua" }, {
-    is_arm64 = false,
-    is_windows = true,
-    has_msvc_cl = true,
-  })
-
-  assert_list_eq(filtered, { "luacheck", "stylua" })
-end)
-
-add("unwraps command table before executable checks", function()
-  assert(tooling.unwrap_cmd("stylua") == "stylua")
-  assert(tooling.unwrap_cmd({ "ruff", "format" }) == "ruff")
-  assert(tooling.unwrap_cmd({}) == nil)
-end)
-
-local failures = {}
-
-for _, test in ipairs(tests) do
-  local ok, err = pcall(test.fn)
-  if ok then
-    print("ok - " .. test.name)
-  else
-    failures[#failures + 1] = ("not ok - %s\n%s"):format(test.name, err)
-  end
-end
-
-if #failures > 0 then
-  print(table.concat(failures, "\n"))
-  error(("%d unit test(s) failed"):format(#failures))
-end
-
-print(("%d unit test(s) passed"):format(#tests))
