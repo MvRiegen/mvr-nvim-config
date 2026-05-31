@@ -21,6 +21,8 @@ RUN apt-get update -qq \
       -o /tmp/lua-language-server.tar.gz; \
     mkdir -p /opt/lua-language-server; \
     tar -xzf /tmp/lua-language-server.tar.gz -C /opt/lua-language-server; \
+    # LuaLS writes generated meta files on first run; allow arbitrary CI UID to write there.
+    install -d -m 0777 /opt/lua-language-server/meta; \
     ln -s /opt/lua-language-server/bin/lua-language-server /usr/local/bin/lua-language-server; \
     rm /tmp/lua-language-server.tar.gz \
  && rm -rf /var/lib/apt/lists/*
