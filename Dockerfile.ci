@@ -1,4 +1,4 @@
-FROM anatolelucet/neovim:0.12-bookworm@sha256:3b7ac4ca402fe820c5840234a5e9e70ae4000fd3dd1ee3d9f50088f0b960721f
+FROM anatolelucet/neovim:0.12-bookworm@sha256:5b673cabca92a3ec5e759b87b0a126772f7b790535f4bc06bcb997c888fc7993
 
 RUN apt-get update -qq \
  && apt-get install -y -qq --no-install-recommends \
