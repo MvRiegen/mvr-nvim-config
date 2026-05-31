@@ -4,6 +4,10 @@ local root = vim.fn.fnamemodify(test_file, ":p:h:h:h")
 ---@type any
 local assert = assert
 
+local function ignore_args(...)
+  return select("#", ...)
+end
+
 local function contains_text(items, text)
   for _, item in ipairs(items) do
     if item:find(text, 1, true) then
@@ -38,29 +42,40 @@ local function with_platform_env(env, fn)
     return path
   end
   vim.fn.filereadable = env.filereadable or function(...)
+    ignore_args(...)
     return 0
   end
   vim.fn.isdirectory = env.isdirectory or function(...)
+    ignore_args(...)
     return 1
   end
-  vim.fn.mkdir = env.mkdir or function(...) end
+  vim.fn.mkdir = env.mkdir or function(...)
+    ignore_args(...)
+  end
   vim.fn.executable = env.executable or function(...)
+    ignore_args(...)
     return 0
   end
   vim.fn.exepath = env.exepath or function(cmd)
     return cmd
   end
   vim.fn.getftype = env.getftype or function(...)
+    ignore_args(...)
     return ""
   end
   vim.api.nvim_create_user_command = function(name, callback, ...)
+    ignore_args(...)
     commands[name] = callback
   end
-  vim.defer_fn = function(...) end
+  vim.defer_fn = function(...)
+    ignore_args(...)
+  end
   vim.notify = function(message, ...)
+    ignore_args(...)
     notifications[#notifications + 1] = message
   end
   vim.system = env.system or function(...)
+    ignore_args(...)
     error("unexpected vim.system call")
   end
   vim.g.platform_tools = env.platform_tools

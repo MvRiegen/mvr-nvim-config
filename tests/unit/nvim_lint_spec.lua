@@ -4,6 +4,10 @@ local root = vim.fn.fnamemodify(test_file, ":p:h:h:h")
 ---@type any
 local assert = assert
 
+local function ignore_args(...)
+  return select("#", ...)
+end
+
 local function contains(list, value)
   for _, item in ipairs(list) do
     if vim.deep_equal(item, value) then
@@ -22,6 +26,7 @@ local function with_modules(modules, fn)
     original_preload[name] = package.preload[name]
     package.loaded[name] = nil
     package.preload[name] = function(...)
+      ignore_args(...)
       return module
     end
   end
@@ -48,7 +53,9 @@ describe("plugins.nvim-lint", function()
         shellcheck = {},
       },
       linters_by_ft = {},
-      try_lint = function(...) end,
+      try_lint = function(...)
+        ignore_args(...)
+      end,
     }
     local checked = {}
 
@@ -85,7 +92,9 @@ describe("plugins.nvim-lint", function()
     local lint = {
       linters = {},
       linters_by_ft = {},
-      try_lint = function(...) end,
+      try_lint = function(...)
+        ignore_args(...)
+      end,
     }
     local autocmd
     local original_create_autocmd = vim.api.nvim_create_autocmd
@@ -94,12 +103,14 @@ describe("plugins.nvim-lint", function()
       ["config.tooling"] = {
         linters_by_ft = {},
         is_executable = function(...)
+          ignore_args(...)
           return true
         end,
       },
       lint = lint,
     }, function()
       vim.api.nvim_create_autocmd = function(events, opts, ...)
+        ignore_args(...)
         autocmd = { events = events, opts = opts }
       end
 

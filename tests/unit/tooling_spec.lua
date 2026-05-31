@@ -5,6 +5,10 @@ local tooling = dofile(root .. "/lua/config/tooling.lua")
 ---@type any
 local assert = assert
 
+local function ignore_args(...)
+  return select("#", ...)
+end
+
 local function contains(list, value)
   for _, item in ipairs(list) do
     if item == value then
@@ -192,12 +196,12 @@ describe("config.tooling", function()
   end)
 
   it("checks executable command tables by their first item", function()
+    -- given
     with_vim_fn_stubs({
       executable = function(cmd)
         return cmd == "ruff" and 1 or 0
       end,
     }, function()
-      -- given
       local cmd = { "ruff", "format" }
 
       -- when
@@ -209,12 +213,13 @@ describe("config.tooling", function()
   end)
 
   it("rejects unavailable executable strings", function()
+    -- given
     with_vim_fn_stubs({
       executable = function(...)
+        ignore_args(...)
         return 0
       end,
     }, function()
-      -- given
       local cmd = "stylua"
 
       -- when
@@ -240,12 +245,12 @@ describe("config.tooling", function()
   end)
 
   it("detects windows through vim.fn", function()
+    -- given
     with_vim_fn_stubs({
       has = function(feature)
         return feature == "win64" and 1 or 0
       end,
     }, function()
-      -- given
       local expected_windows = true
 
       -- when
@@ -257,12 +262,12 @@ describe("config.tooling", function()
   end)
 
   it("detects MSVC cl through vim.fn", function()
+    -- given
     with_vim_fn_stubs({
       executable = function(cmd)
         return cmd == "cl" and 1 or 0
       end,
     }, function()
-      -- given
       local expected_cl = true
 
       -- when

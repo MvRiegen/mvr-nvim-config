@@ -4,6 +4,10 @@ local root = vim.fn.fnamemodify(test_file, ":p:h:h:h")
 ---@type any
 local assert = assert
 
+local function ignore_args(...)
+  return select("#", ...)
+end
+
 local function with_tooling(tooling, fn)
   local original_tooling = package.loaded["config.tooling"]
   package.loaded["config.tooling"] = tooling
@@ -24,6 +28,7 @@ describe("plugins.conform", function()
       formatter_exec = {},
       formatters_by_ft = {},
       is_executable = function(...)
+        ignore_args(...)
         return true
       end,
     }, function()
@@ -31,9 +36,11 @@ describe("plugins.conform", function()
       local original_fs_stat = vim.loop.fs_stat
 
       vim.api.nvim_buf_get_name = function(...)
+        ignore_args(...)
         return "large.lua"
       end
       vim.loop.fs_stat = function(...)
+        ignore_args(...)
         return { size = 512 * 1024 + 1 }
       end
 
@@ -51,22 +58,25 @@ describe("plugins.conform", function()
   end)
 
   it("keeps format-on-save enabled for small files", function()
+    -- given
     with_tooling({
       formatter_exec = {},
       formatters_by_ft = {},
       is_executable = function(...)
+        ignore_args(...)
         return true
       end,
     }, function()
-      -- given
       local original_buf_get_name = vim.api.nvim_buf_get_name
       local original_fs_stat = vim.loop.fs_stat
 
       vim.api.nvim_buf_get_name = function(...)
+        ignore_args(...)
         return "small.lua"
       end
 
       vim.loop.fs_stat = function(...)
+        ignore_args(...)
         return { size = 512 * 1024 }
       end
       local spec = dofile(root .. "/lua/plugins/conform.lua")
@@ -83,21 +93,24 @@ describe("plugins.conform", function()
   end)
 
   it("keeps format-on-save enabled when file stats are missing", function()
+    -- given
     with_tooling({
       formatter_exec = {},
       formatters_by_ft = {},
       is_executable = function(...)
+        ignore_args(...)
         return true
       end,
     }, function()
-      -- given
       local original_buf_get_name = vim.api.nvim_buf_get_name
       local original_fs_stat = vim.loop.fs_stat
 
       vim.api.nvim_buf_get_name = function(...)
+        ignore_args(...)
         return "missing.lua"
       end
       vim.loop.fs_stat = function(...)
+        ignore_args(...)
         return nil
       end
       local spec = dofile(root .. "/lua/plugins/conform.lua")
@@ -175,6 +188,7 @@ describe("plugins.conform", function()
       formatter_exec = {},
       formatters_by_ft = formatters_by_ft,
       is_executable = function(...)
+        ignore_args(...)
         return true
       end,
     }, function()
