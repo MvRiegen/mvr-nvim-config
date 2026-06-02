@@ -32,7 +32,7 @@ local function load_tooling_with_env(env)
   end
 
   rawset(vim.uv, "os_uname", function()
-    return { machine = env.machine }
+    return { machine = env.machine, sysname = env.sysname }
   end)
 
   local ok, loaded = pcall(dofile, root .. "/lua/config/tooling.lua")
@@ -91,6 +91,22 @@ describe("config.tooling", function()
 
     -- then
     assert.are.same({ false, false, false }, results)
+  end)
+
+  it("detects FreeBSD system names", function()
+    -- given
+    local system_names = { "FreeBSD", "freebsd", "Linux", nil }
+
+    -- when
+    local results = {
+      tooling.is_freebsd_system(system_names[1]),
+      tooling.is_freebsd_system(system_names[2]),
+      tooling.is_freebsd_system(system_names[3]),
+      tooling.is_freebsd_system(system_names[4]),
+    }
+
+    -- then
+    assert.are.same({ true, true, false, false }, results)
   end)
 
   it("does not mutate mason tools while filtering", function()
@@ -160,6 +176,22 @@ describe("config.tooling", function()
 
     -- then
     assert.are.same({ "luacheck", "stylua" }, filtered)
+  end)
+
+  it("removes Mason packages unsupported on FreeBSD", function()
+    -- given
+    local tools = { "stylua", "ruff", "luacheck", "prettier", "shfmt", "shellcheck", "hadolint" }
+
+    -- when
+    local filtered = tooling.filter_mason_tools(tools, {
+      is_arm64 = false,
+      is_freebsd = true,
+      is_windows = false,
+      has_msvc_cl = true,
+    })
+
+    -- then
+    assert.are.same({ "prettier" }, filtered)
   end)
 
   it("keeps string commands unchanged when unwrapping", function()
@@ -282,6 +314,7 @@ describe("config.tooling", function()
     -- given
     local env = {
       machine = "aarch64",
+      sysname = "FreeBSD",
       has = { win32 = 1 },
       executable = { cl = 0 },
     }
@@ -292,6 +325,6 @@ describe("config.tooling", function()
     -- then
     assert.is_false(contains(loaded.mason_tools, "checkmake"))
     assert.is_false(contains(loaded.mason_tools, "luacheck"))
-    assert.is_true(contains(loaded.mason_tools, "stylua"))
+    assert.is_false(contains(loaded.mason_tools, "stylua"))
   end)
 end)

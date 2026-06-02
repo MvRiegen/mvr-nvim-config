@@ -22,8 +22,32 @@ local function machine_arch()
   return machine:lower()
 end
 
+local function system_name()
+  local uv = vim.uv or vim.loop
+  if not uv or type(uv.os_uname) ~= "function" then
+    return ""
+  end
+  local uname = uv.os_uname()
+  local sysname = uname and uname.sysname or ""
+  if type(sysname) ~= "string" then
+    return ""
+  end
+  return sysname:lower()
+end
+
 function M.is_arm64()
   return M.is_arm64_machine(machine_arch())
+end
+
+function M.is_freebsd_system(sysname)
+  return type(sysname) == "string" and sysname:lower() == "freebsd"
+end
+
+function M.is_freebsd()
+  if M.is_freebsd_system(system_name()) then
+    return true
+  end
+  return vim.fn.has("freebsd") == 1
 end
 
 function M.is_windows()
@@ -125,11 +149,23 @@ function M.filter_mason_tools(tools, opts)
     filtered = without_tools(filtered, { luacheck = true })
   end
 
+  if opts.is_freebsd then
+    filtered = without_tools(filtered, {
+      stylua = true,
+      ruff = true,
+      luacheck = true,
+      shfmt = true,
+      shellcheck = true,
+      hadolint = true,
+    })
+  end
+
   return filtered
 end
 
 M.mason_tools = M.filter_mason_tools(M.default_mason_tools, {
   is_arm64 = M.is_arm64(),
+  is_freebsd = M.is_freebsd(),
   is_windows = M.is_windows(),
   has_msvc_cl = M.has_msvc_cl(),
 })

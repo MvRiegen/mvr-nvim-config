@@ -17,6 +17,7 @@ local lua_ls_setup = {
 }
 
 local mason_sync = require("config.mason_sync")
+local tooling = require("config.tooling")
 
 -- Standardkonfiguration mit Icons setzen
 return {
@@ -48,6 +49,7 @@ return {
       local uname = uv.os_uname()
       local machine = uname and type(uname.machine) == "string" and uname.machine:lower() or ""
       local is_aarch64 = machine == "aarch64" or machine == "arm64"
+      local is_freebsd = tooling.is_freebsd()
       local four_gib = 4 * 1024 * 1024 * 1024
 
       local function read_text(path, max_bytes)
@@ -169,6 +171,24 @@ return {
         })
       end
 
+      local function without_servers(list, excluded)
+        local filtered = {}
+        for _, server in ipairs(list) do
+          if not excluded[server] then
+            filtered[#filtered + 1] = server
+          end
+        end
+        return filtered
+      end
+
+      local mason_servers = servers
+      if is_freebsd then
+        mason_servers = without_servers(mason_servers, {
+          clangd = true,
+          lua_ls = true,
+        })
+      end
+
       local fallback_map = {
         lua_ls = "lua-language-server",
         jsonls = "json-lsp",
@@ -188,7 +208,7 @@ return {
         local mapping = ok_mappings and mappings.lspconfig_to_mason or fallback_map
         local out = {}
         local seen = {}
-        for _, server in ipairs(servers) do
+        for _, server in ipairs(mason_servers) do
           local pkg = mapping[server] or server
           if pkg and not seen[pkg] then
             seen[pkg] = true
@@ -210,6 +230,7 @@ return {
         log_line("MasonLspInstallSync start")
         log_line("MasonLspInstallSync npm=" .. tostring(vim.fn.executable("npm") == 1))
         log_line("MasonLspInstallSync servers=" .. table.concat(servers, ", "))
+        log_line("MasonLspInstallSync mason_servers=" .. table.concat(mason_servers, ", "))
 
         local packages, err = mason_lsp_packages()
         if not packages or #packages == 0 then
@@ -272,7 +293,7 @@ return {
 
       mason_lspconfig.setup({
         -- Installation der LSPs für Lua, C und Python
-        ensure_installed = servers,
+        ensure_installed = mason_servers,
         handlers = {
           function(server)
             local opts = {
@@ -303,6 +324,28 @@ return {
           end,
         },
       })
+
+      if is_freebsd then
+        if vim.fn.executable("lua-language-server") == 1 then
+          lsp.config(
+            "lua_ls",
+            vim.tbl_deep_extend("force", lua_ls_setup, {
+              capabilities = capabilities,
+              on_attach = on_attach,
+            })
+          )
+          lsp.enable("lua_ls")
+        end
+
+        if clangd_available then
+          lsp.config("clangd", {
+            cmd = { clangd_cmd },
+            capabilities = capabilities,
+            on_attach = on_attach,
+          })
+          lsp.enable("clangd")
+        end
+      end
 
       local function refresh_platform_ls()
         if not is_aarch64 then
