@@ -191,7 +191,7 @@ describe("config.tooling", function()
     })
 
     -- then
-    assert.are.same({ "prettier" }, filtered)
+    assert.are.same({ "ruff", "prettier" }, filtered)
   end)
 
   it("keeps string commands unchanged when unwrapping", function()

@@ -152,7 +152,6 @@ function M.filter_mason_tools(tools, opts)
   if opts.is_freebsd then
     filtered = without_tools(filtered, {
       stylua = true,
-      ruff = true,
       luacheck = true,
       shfmt = true,
       shellcheck = true,
