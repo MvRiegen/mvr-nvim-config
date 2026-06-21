@@ -2,9 +2,11 @@ pipeline {
     agent none
 
     options {
-        // Includes queue/provisioning time, so keep generous for cold-starting agents.
-        timeout(time: 60, unit: 'MINUTES')
+        quietPeriod(120)
         disableConcurrentBuilds()
+        timeout(time: 60, unit: 'MINUTES')
+	    buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '30', numToKeepStr: '30')
+        ansiColor('gnome-terminal')
     }
 
     stages {
