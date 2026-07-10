@@ -1,6 +1,7 @@
 .bundle/
 .state/
 .nvimlog
+*.log
 luacheck.xml
 luacheck.log
 luacheck-checkstyle.xml
