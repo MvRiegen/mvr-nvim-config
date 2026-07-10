@@ -11,8 +11,12 @@ return {
     },
   },
   init = function()
-    -- enable saving the state of plugins in the session
+    -- enable saving state plugins in session
     vim.opt.sessionoptions:append("globals")
+  end,
+  config = function(_, opts)
+    require("config.session_manager").patch_load_session()
+    require("neovim-project").setup(opts)
   end,
   dependencies = {
     { "nvim-lua/plenary.nvim" },

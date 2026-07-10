@@ -1,0 +1,72 @@
+local M = {}
+
+function M.should_preserve_placeholder_buffer()
+  local current_buffer = vim.api.nvim_get_current_buf()
+
+  if not vim.api.nvim_buf_is_valid(current_buffer) then
+    return false
+  end
+
+  local valid_buffers = {}
+  for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(buffer) then
+      table.insert(valid_buffers, buffer)
+    end
+  end
+
+  if #valid_buffers ~= 1 or valid_buffers[1] ~= current_buffer then
+    return false
+  end
+
+  if vim.api.nvim_buf_get_name(current_buffer) ~= "" then
+    return false
+  end
+
+  if vim.api.nvim_get_option_value("modified", { buf = current_buffer }) then
+    return false
+  end
+
+  if vim.api.nvim_buf_line_count(current_buffer) > 1 then
+    return false
+  end
+
+  local first_line = vim.api.nvim_buf_get_lines(current_buffer, 0, 1, true)[1]
+  return first_line == nil or first_line == ""
+end
+
+function M.load_session_with_placeholder(filename, utils)
+  utils.active_session_filename = filename
+
+  local swapfile = vim.o.swapfile
+  vim.o.swapfile = false
+
+  vim.api.nvim_exec_autocmds("User", { pattern = "SessionLoadPre" })
+  vim.api.nvim_command("silent source " .. filename)
+  vim.api.nvim_exec_autocmds("User", { pattern = "SessionLoadPost" })
+
+  vim.o.swapfile = swapfile
+end
+
+function M.patch_load_session()
+  local utils = require("session_manager.utils")
+
+  if utils._mvr_load_session_patched then
+    return
+  end
+
+  local original_load_session = utils.load_session
+
+  utils.load_session = function(filename, discard_current)
+    if not M.should_preserve_placeholder_buffer() then
+      return original_load_session(filename, discard_current)
+    end
+
+    -- Keep the startup placeholder buffer alive. The generated session file
+    -- will wipe it itself, and deleting it here triggers E517 on restore.
+    M.load_session_with_placeholder(filename, utils)
+  end
+
+  utils._mvr_load_session_patched = true
+end
+
+return M
