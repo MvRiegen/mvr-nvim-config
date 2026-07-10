@@ -1,15 +1,23 @@
 return {
   "coffebar/neovim-project",
-  opts = {
-    projects = {
-      "~/git/*",
-      "~/.config/*",
-      "~/prod*",
-    },
-    picker = {
-      type = "telescope",
-    },
-  },
+  opts = function()
+    local clean_session = require("config.startup").clean_session_requested()
+
+    return {
+      projects = {
+        "~/git/*",
+        "~/.config/*",
+        "~/prod*",
+      },
+      picker = {
+        type = "telescope",
+      },
+      -- Reuse the plugin's own startup gate to suppress any automatic
+      -- session restore when requested from the command line.
+      dashboard_mode = clean_session,
+      last_session_on_startup = not clean_session,
+    }
+  end,
   init = function()
     -- enable saving state plugins in session
     vim.opt.sessionoptions:append("globals")
