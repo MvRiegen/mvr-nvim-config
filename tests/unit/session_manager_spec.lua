@@ -45,4 +45,23 @@ describe("config.session_manager", function()
 
     assert.is_false(session_manager.should_preserve_placeholder_buffer())
   end)
+
+  it("prepares a single empty placeholder buffer", function()
+    vim.cmd("edit README.md")
+    vim.cmd("badd init.lua")
+
+    local placeholder = session_manager.prepare_placeholder_buffer()
+    local valid_buffers = {}
+
+    for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.api.nvim_buf_is_valid(buffer) then
+        table.insert(valid_buffers, buffer)
+      end
+    end
+
+    assert.are.same({ placeholder }, valid_buffers)
+    assert.are.equal("", vim.api.nvim_buf_get_name(placeholder))
+    assert.are.same({ "" }, vim.api.nvim_buf_get_lines(placeholder, 0, -1, true))
+    assert.is_false(vim.api.nvim_get_option_value("modified", { buf = placeholder }))
+  end)
 end)
