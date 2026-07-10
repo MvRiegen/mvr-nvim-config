@@ -37,6 +37,10 @@ local function close_and_focus(bufnr, force)
 end
 
 local function cleanup_empty_buffers()
+  if (vim.g.mvr_session_restore_depth or 0) > 0 then
+    return
+  end
+
   local bufs = vim.fn.getbufinfo({ buflisted = 1 })
   if #bufs <= 1 then
     return

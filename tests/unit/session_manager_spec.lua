@@ -10,6 +10,7 @@ local function reset_to_single_empty_buffer()
   vim.cmd("enew")
   vim.api.nvim_buf_set_lines(0, 0, -1, true, { "" })
   vim.bo.modified = false
+  vim.g.mvr_session_restore_depth = nil
 end
 
 describe("config.session_manager", function()
@@ -62,6 +63,31 @@ describe("config.session_manager", function()
     assert.are.same({ placeholder }, valid_buffers)
     assert.are.equal("", vim.api.nvim_buf_get_name(placeholder))
     assert.are.same({ "" }, vim.api.nvim_buf_get_lines(placeholder, 0, -1, true))
+    assert.are.equal(0, vim.fn.buflisted(placeholder))
     assert.is_false(vim.api.nvim_get_option_value("modified", { buf = placeholder }))
+  end)
+
+  it("tracks session restore guard state", function()
+    assert.is_false(session_manager.session_restore_in_progress())
+
+    session_manager.with_session_restore_guard(function()
+      assert.is_true(session_manager.session_restore_in_progress())
+      assert.are.equal(1, vim.g.mvr_session_restore_depth)
+    end)
+
+    assert.is_false(session_manager.session_restore_in_progress())
+    assert.are.equal(0, vim.g.mvr_session_restore_depth)
+  end)
+
+  it("clears session restore guard after errors", function()
+    local ok = pcall(function()
+      session_manager.with_session_restore_guard(function()
+        error("boom")
+      end)
+    end)
+
+    assert.is_false(ok)
+    assert.is_false(session_manager.session_restore_in_progress())
+    assert.are.equal(0, vim.g.mvr_session_restore_depth)
   end)
 end)

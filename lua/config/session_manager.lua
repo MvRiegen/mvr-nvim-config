@@ -1,5 +1,27 @@
 local M = {}
 
+local function session_restore_depth()
+  return vim.g.mvr_session_restore_depth or 0
+end
+
+function M.session_restore_in_progress()
+  return session_restore_depth() > 0
+end
+
+function M.with_session_restore_guard(callback)
+  vim.g.mvr_session_restore_depth = session_restore_depth() + 1
+
+  local ok, result = xpcall(callback, debug.traceback)
+
+  vim.g.mvr_session_restore_depth = math.max(session_restore_depth() - 1, 0)
+
+  if not ok then
+    error(result)
+  end
+
+  return result
+end
+
 function M.should_preserve_placeholder_buffer()
   local current_buffer = vim.api.nvim_get_current_buf()
 
@@ -38,17 +60,25 @@ function M.load_session_with_placeholder(filename, utils)
   utils.active_session_filename = filename
 
   local swapfile = vim.o.swapfile
-  vim.o.swapfile = false
+  local ok, err = xpcall(function()
+    M.with_session_restore_guard(function()
+      vim.o.swapfile = false
 
-  vim.api.nvim_exec_autocmds("User", { pattern = "SessionLoadPre" })
-  vim.api.nvim_command("silent source " .. filename)
-  vim.api.nvim_exec_autocmds("User", { pattern = "SessionLoadPost" })
+      vim.api.nvim_exec_autocmds("User", { pattern = "SessionLoadPre" })
+      vim.api.nvim_command("silent source " .. filename)
+      vim.api.nvim_exec_autocmds("User", { pattern = "SessionLoadPost" })
+    end)
+  end, debug.traceback)
 
   vim.o.swapfile = swapfile
+
+  if not ok then
+    error(err)
+  end
 end
 
 function M.prepare_placeholder_buffer()
-  vim.cmd("silent! enew")
+  vim.cmd("silent! noautocmd enew")
 
   local placeholder = vim.api.nvim_get_current_buf()
   for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
@@ -57,6 +87,8 @@ function M.prepare_placeholder_buffer()
     end
   end
 
+  -- Keep the startup placeholder out of generic empty-buffer cleanup.
+  vim.bo[placeholder].buflisted = false
   vim.api.nvim_buf_set_lines(placeholder, 0, -1, true, { "" })
   vim.bo[placeholder].modified = false
 
