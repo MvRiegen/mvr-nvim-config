@@ -1,6 +1,6 @@
 FROM anatolelucet/neovim:latest-bookworm@sha256:ab92b92774a3e1ee826de262d25f3158430e8a73f1625d85b2f789f43f7a7a02
 
-ARG LUALS_VERSION=3.18.2
+ARG LUALS_VERSION=3.19.0
 
 RUN apt-get update -qq \
  && apt-get install -y -qq --no-install-recommends \
