@@ -21,6 +21,11 @@ local ensure_installed = {
 
 local function config()
   local ts = require("nvim-treesitter")
+  -- Checkouts from the old master branch lack the new API until :Lazy sync ran.
+  if not ts.install then
+    vim.notify("nvim-treesitter is still on the old master branch, run :Lazy sync", vim.log.levels.WARN)
+    return
+  end
   ts.install(ensure_installed)
 
   vim.api.nvim_create_autocmd("FileType", {
@@ -42,7 +47,11 @@ local function config()
 end
 
 local function textobjects_config()
-  require("nvim-treesitter-textobjects").setup({
+  local textobjects = require("nvim-treesitter-textobjects")
+  if not textobjects.setup then
+    return
+  end
+  textobjects.setup({
     select = { lookahead = true },
     move = { set_jumps = true },
   })
