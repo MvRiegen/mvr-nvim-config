@@ -126,23 +126,19 @@ return {
         map("n", "gi", vim.lsp.buf.implementation, "Goto implementation")
         map("n", "gr", vim.lsp.buf.references, "Goto references")
         map("n", "gl", vim.diagnostic.open_float, "Line diagnostics")
-        map("n", "[d", vim.diagnostic.goto_prev, "Prev diagnostic")
-        map("n", "]d", vim.diagnostic.goto_next, "Next diagnostic")
+        map("n", "[d", function()
+          vim.diagnostic.jump({ count = -1, float = true })
+        end, "Prev diagnostic")
+        map("n", "]d", function()
+          vim.diagnostic.jump({ count = 1, float = true })
+        end, "Next diagnostic")
 
-        if vim.lsp.inlay_hint and client.supports_method("textDocument/inlayHint") then
+        if vim.lsp.inlay_hint and client:supports_method("textDocument/inlayHint") then
           pcall(vim.lsp.inlay_hint.enable, true, { bufnr = bufnr })
         end
 
-        if vim.lsp.codelens and client.supports_method("textDocument/codeLens") then
-          local group = vim.api.nvim_create_augroup("LspCodeLens", { clear = false })
-          vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
-            group = group,
-            buffer = bufnr,
-            callback = function()
-              pcall(vim.lsp.codelens.refresh)
-            end,
-          })
-          pcall(vim.lsp.codelens.refresh)
+        if vim.lsp.codelens and client:supports_method("textDocument/codeLens") then
+          vim.lsp.codelens.enable(true, { bufnr = bufnr })
         end
       end
 
@@ -204,8 +200,8 @@ return {
       }
 
       local function mason_lsp_packages()
-        local ok_mappings, mappings = pcall(require, "mason-lspconfig.mappings.server")
-        local mapping = ok_mappings and mappings.lspconfig_to_mason or fallback_map
+        local ok_mappings, mappings = pcall(mason_lspconfig.get_mappings)
+        local mapping = ok_mappings and mappings.lspconfig_to_package or fallback_map
         local out = {}
         local seen = {}
         for _, server in ipairs(mason_servers) do
@@ -291,38 +287,47 @@ return {
         log_line("MasonLspInstallSync changed=" .. table.concat(to_install, ", "))
       end, {})
 
+      -- mason-lspconfig v2 has no handlers anymore: configure every server up
+      -- front and let automatic_enable start the installed ones.
+      local function configure_server(server)
+        local opts = {
+          capabilities = capabilities,
+          on_attach = on_attach,
+        }
+
+        if server == "lua_ls" then
+          opts = vim.tbl_deep_extend("force", lua_ls_setup, opts)
+        end
+        if server == "clangd" then
+          if clangd_available then
+            opts.cmd = { clangd_cmd }
+          elseif is_aarch64 then
+            return false
+          end
+        end
+        if server == "lemminx" then
+          if lemminx_available then
+            opts.cmd = { "java", "-jar", lemminx_jar }
+          elseif is_aarch64 then
+            return false
+          end
+        end
+
+        lsp.config(server, opts)
+        return true
+      end
+
+      local excluded_servers = {}
+      for _, server in ipairs(mason_servers) do
+        if not configure_server(server) then
+          table.insert(excluded_servers, server)
+        end
+      end
+
       mason_lspconfig.setup({
         -- Installation der LSPs für Lua, C und Python
         ensure_installed = mason_servers,
-        handlers = {
-          function(server)
-            local opts = {
-              capabilities = capabilities,
-              on_attach = on_attach,
-            }
-
-            if server == "lua_ls" then
-              opts = vim.tbl_deep_extend("force", lua_ls_setup, opts)
-            end
-            if server == "clangd" then
-              if clangd_available then
-                opts.cmd = { clangd_cmd }
-              elseif is_aarch64 then
-                return
-              end
-            end
-            if server == "lemminx" then
-              if lemminx_available then
-                opts.cmd = { "java", "-jar", lemminx_jar }
-              elseif is_aarch64 then
-                return
-              end
-            end
-
-            lsp.config(server, opts)
-            lsp.enable(server)
-          end,
-        },
+        automatic_enable = { exclude = excluded_servers },
       })
 
       if is_freebsd then

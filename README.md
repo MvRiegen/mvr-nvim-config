@@ -11,8 +11,9 @@ Personal Neovim configuration with a clean, practical LSP/format/lint setup.
 
 ## Requirements
 
-- Neovim 0.11+
+- Neovim 0.12+
 - git
+- `tree-sitter` CLI 0.26.1+ (from your package manager or GitHub releases, not npm), a C compiler, `tar` and `curl` for building Treesitter parsers
 - Optional:
   - node/npm (for some LSPs and tools)
   - `shfmt`, `shellcheck` (shell formatting/lint)
