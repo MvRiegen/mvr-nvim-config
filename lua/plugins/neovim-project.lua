@@ -15,7 +15,9 @@ return {
       -- Reuse the plugin's own startup gate to suppress any automatic
       -- session restore when requested from the command line.
       dashboard_mode = clean_session,
-      last_session_on_startup = not clean_session,
+      -- Show the dashboard instead of restoring the most recent session
+      -- when nvim is started outside of a project directory.
+      last_session_on_startup = false,
     }
   end,
   init = function()
