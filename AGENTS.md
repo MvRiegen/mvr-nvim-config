@@ -5,17 +5,18 @@ Personal Neovim config (Neovim 0.12+, lazy.nvim). The repo root is the config di
 ## Commands
 
 ```sh
-make all     # lint + luals + test (what CI runs)
+make all     # lint + luals + test
 make test    # plenary-busted over tests/unit using tests/minimal_init.lua
 make lint    # luacheck lua/ tests/
 make luals   # lua-language-server --check (Warning level, .luarc.json)
 ```
 
-- Run a single spec: `nvim --headless -u tests/minimal_init.lua -c "PlenaryBustedFile tests/unit/tooling_spec.lua"`
-- Tests need plenary.nvim at `$PLENARY_PATH` or `stdpath("data")/lazy/plenary.nvim`.
-- `luacheck` / `lua-language-server` are resolved from PATH, then `~/.luarocks/bin`, then the Mason bin dir; override with `LUACHECK=` / `LUALS=` / `NVIM=`.
+- By default the Makefile runs everything inside the `Dockerfile.ci` image (built as `$(CI_IMAGE)`, default `nvim-linux`, with the repo mounted at `/work`). No local luarocks/MSVC/LuaLS is needed, which matters on Windows where building luacheck is painful. `make test` clones plenary (pinned to `PLENARY_REV`) inside the container with an isolated HOME/XDG setup.
+- On Windows, `make lint` and `make luals` only work through Docker (the default). `make USE_DOCKER=0 test` is fine locally.
+- `make USE_DOCKER=0 <target>` runs with local tools instead. Then `luacheck` / `lua-language-server` are resolved from PATH, then `~/.luarocks/bin`, then the Mason bin dir; override with `LUACHECK=` / `LUALS=` / `NVIM=`, and plenary must be at `$PLENARY_PATH` or `stdpath("data")/lazy/plenary.nvim`.
+- Run a single spec (local tools): `nvim --headless -u tests/minimal_init.lua -c "PlenaryBustedFile tests/unit/tooling_spec.lua"`
 - Formatting: stylua (`.stylua.toml`: 120 cols, 2-space indent, double quotes).
-- CI (`Jenkinsfile`, `Dockerfile.ci`) runs lint, LuaLS, unit tests, then a headless startup check on Linux amd64/arm64 and Windows.
+- CI (`Jenkinsfile`) does not use the Makefile. It runs the same tools directly inside `Dockerfile.ci` (lint, LuaLS, unit tests), then a headless startup check on Linux amd64/arm64 and Windows. Keep the Makefile docker commands and the Jenkinsfile stages in sync when changing either.
 
 ## Architecture
 
