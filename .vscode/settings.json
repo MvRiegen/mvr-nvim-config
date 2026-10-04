@@ -1,6 +1,28 @@
 {
   "[lua]": {
     "editor.defaultFormatter": "JohnnyMorganz.stylua",
-    "editor.formatOnSave": true
-  }
+    "editor.formatOnSave": true,
+    
+  },
+  "chat.useAgentsMdFile": true,
+	"github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+    "text": "All records must be written in English at all times."
+    },
+    {
+    "text": "The commit message must be concise and descriptive, summarizing the changes made in the commit."
+    },
+    {
+    "text": "The commit message should follow the conventional format: <type>(<scope>): <subject>."
+    },
+    {
+    "text": "The <type> should be one of the following: feat, fix, docs, style, refactor, test, chore."
+    },
+    {
+    "text": "The <scope> is optional and can be used to specify the area of the codebase affected by the changes."
+    },
+    {
+    "text": "The <subject> should be a brief summary of the changes made in the commit."
+    }
+  ]
 }
