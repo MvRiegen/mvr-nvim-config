@@ -1,0 +1,6 @@
+# Normalize line endings: the repo is mounted into Linux containers (Docker, Jenkins)
+# and stylua defaults to Unix line endings, so check everything out with LF.
+* text=auto eol=lf
+
+# Lockfile is maintained by lazy.nvim / Renovate
+lazy-lock.json linguist-generated=true
