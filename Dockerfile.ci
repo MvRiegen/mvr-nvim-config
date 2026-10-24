@@ -1,4 +1,4 @@
-FROM anatolelucet/neovim:latest-bookworm@sha256:2d70dbfdce5b3bbd1b9e9a40e82c29360c4f2029f088abf7e472d3daf894f39f
+FROM anatolelucet/neovim:latest-bookworm@sha256:127ad90d3c108604a8dce01f26368189043026abd2c0696ab5ba23897600e61d
 
 ARG LUALS_VERSION=3.19.2
 
