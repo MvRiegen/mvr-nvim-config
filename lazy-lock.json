@@ -12,7 +12,11 @@
   "dropbar.nvim": { "branch": "master", "commit": "f7c6fa21e2a7c32576e7a1791774a3736987f467" },
   "fidget.nvim": { "branch": "main", "commit": "9e0201673e08e997e7cf52afca5565c70bd117f3" },
   "friendly-snippets": { "branch": "main", "commit": "b2ea5c41a150ba72fb656eedb4ed0a86d138d945" },
+<<<<<<< Updated upstream
   "fzf-lua": { "branch": "main", "commit": "07fce8ac8dffba4e11f1cbe5490d730a2cc5ec7a" },
+=======
+  "fzf-lua": { "branch": "main", "commit": "48d7c3db291a2c7c1825905c227a6bc81c83b837" },
+>>>>>>> Stashed changes
   "gitsigns.nvim": { "branch": "main", "commit": "1e9d0fbfe7ff848bc402d2c2e2854fb4eff2dce7" },
   "indent-blankline.nvim": { "branch": "master", "commit": "f1e186e44d3b7f9ae918008e2c28ce37c6023d2d" },
   "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },
