@@ -13,7 +13,11 @@
   "fidget.nvim": { "branch": "main", "commit": "9e0201673e08e997e7cf52afca5565c70bd117f3" },
   "friendly-snippets": { "branch": "main", "commit": "7a1c9f7897a4eb078b157a04c7af81e5869215b1" },
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   "fzf-lua": { "branch": "main", "commit": "48d7c3db291a2c7c1825905c227a6bc81c83b837" },
+=======
+  "fzf-lua": { "branch": "main", "commit": "a8312697c30b4d3b110fa3dc56e3699107aed9a0" },
+>>>>>>> Stashed changes
 =======
   "fzf-lua": { "branch": "main", "commit": "a8312697c30b4d3b110fa3dc56e3699107aed9a0" },
 >>>>>>> Stashed changes
