@@ -102,7 +102,6 @@ M.linters_by_ft = {
   xml = { "xmllint" },
   sh = { "shellcheck" },
   bash = { "shellcheck" },
-  zsh = { "shellcheck" },
   make = { "checkmake" },
   dockerfile = { "hadolint" },
 }
